@@ -23,6 +23,13 @@ jobs:
           touch .env
           echo "TOKEN=test_token" >> .env
           echo "ADMIN_ID=123456" >> .env
+          echo "DB_HOST=db" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_NAME=db_name" >> .env
+          echo "DB_USER=User_name_db" >> .env
+          echo "DB_PASS=Db_password_here" >> .env
+          echo "SECRET_KEY=test_secret_key" >> .env
+          echo "DEBUG=True" >> .env
 
       # 3. Поднимаем твои контейнеры и запускаем тесты
       - name: Run Tests in Docker
