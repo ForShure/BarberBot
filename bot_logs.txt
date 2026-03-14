@@ -86,3 +86,6 @@ AttributeError: 'dict' object has no attribute 'name'
 2026-03-13 19:35:42,196 - [WARNING] - aiogram.dispatcher - Received SIGTERM signal
 2026-03-13 19:35:42,202 - [INFO] - aiogram.dispatcher - Polling stopped for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
 2026-03-13 19:35:42,202 - [INFO] - aiogram.dispatcher - Polling stopped
+2026-03-14 07:23:54,151 - [INFO] - root - 🚀 Бот успешно запущен! Пути настроены.
+2026-03-14 07:23:54,628 - [INFO] - aiogram.dispatcher - Start polling
+2026-03-14 07:23:54,682 - [INFO] - aiogram.dispatcher - Run polling for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'

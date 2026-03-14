@@ -28,10 +28,10 @@ jobs:
       - name: Run Tests in Docker
         run: |
           # Запускаем докер в фоновом режиме
-          docker-compose up -d
+          docker compose up -d
           
           # Даем базе данных 5 секунд на то, чтобы проснуться
           sleep 5
           
           # Твоя любимая команда, но с флагом -T (т.к. на сервере нет реальной клавиатуры/терминала)
-          docker-compose exec -T web python web/manage.py test shop
+          docker compose exec -T web python web/manage.py test shop
