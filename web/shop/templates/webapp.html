@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запись к барберу</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <link rel="stylesheet" href="{% static 'css/webapp.css' %}">
+</head>
+<body>
+    <div id="app">
+        <div id="step-0">
+            <h1>Выберите услугу</h1>
+            <div id="services-list"></div>
+        </div>
+
+        <div id="step-1" style="display: none;">
+            <h1>Выберите мастера</h1>
+            <div id="masters-list"></div>
+            <button id="btn-back-to-services" class="action-btn back-btn" style="margin-top: 20px;">Назад к услугам</button>
+        </div>
+
+        <div id="step-2" style="display: none;">
+            <h2 id="selected-master-title">Мастер</h2>
+            <p>Выберите дату:</p>
+            <input type="date" id="date-picker">
+            <button id="btn-next" class="action-btn">Далее (Выбрать время)</button>
+            <button id="btn-back-to-masters" class="action-btn back-btn">Назад к мастерам</button>
+        </div>
+
+        <div id="step-3" style="display: none;">
+            <h2>Доступное время</h2>
+            <div id="time-slots-list"></div>
+            <button id="btn-back-to-date" class="action-btn back-btn">Назад к дате</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/webapp.js' %}"></script>
+</body>
+</html>

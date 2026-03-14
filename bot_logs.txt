@@ -1,0 +1,88 @@
+2026-03-12 19:50:57,745 - [INFO] - aiogram.event - Update id=355042097 is not handled. Duration 1 ms by bot id=8551466779
+2026-03-12 19:50:57,745 - [ERROR] - aiogram.event - Cause exception while process update id=355042097 by bot id=8551466779
+AttributeError: 'dict' object has no attribute 'name'
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 320, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 189, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 153, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 181, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/app/barberBot/handlers/admin_private.py", line 70, in admin_schedule
+    await message.answer("Выберите мастера:", reply_markup=create_admin_master_keyboard(masters))
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/barberBot/handlers/keyboards.py", line 250, in create_admin_master_keyboard
+    text=master.name,
+         ^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'name'
+2026-03-12 19:54:42,182 - [WARNING] - aiogram.dispatcher - Received SIGTERM signal
+2026-03-12 19:54:42,183 - [INFO] - aiogram.dispatcher - Polling stopped for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-12 19:54:42,183 - [INFO] - aiogram.dispatcher - Polling stopped
+2026-03-12 19:55:13,265 - [INFO] - root - 🚀 Бот успешно запущен! Пути настроены.
+2026-03-12 19:55:13,563 - [INFO] - aiogram.dispatcher - Start polling
+2026-03-12 19:55:13,609 - [INFO] - aiogram.dispatcher - Run polling for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-12 19:56:45,677 - [INFO] - aiogram.event - Update id=355042098 is handled. Duration 217 ms by bot id=8551466779
+2026-03-12 19:56:48,327 - [INFO] - aiogram.event - Update id=355042099 is handled. Duration 69 ms by bot id=8551466779
+2026-03-12 19:56:50,069 - [INFO] - aiogram.event - Update id=355042100 is handled. Duration 125 ms by bot id=8551466779
+2026-03-12 19:56:51,889 - [INFO] - aiogram.event - Update id=355042101 is handled. Duration 376 ms by bot id=8551466779
+2026-03-12 19:56:53,502 - [INFO] - aiogram.event - Update id=355042102 is handled. Duration 512 ms by bot id=8551466779
+2026-03-12 19:56:53,822 - [INFO] - aiogram.event - Update id=355042103 is handled. Duration 147 ms by bot id=8551466779
+2026-03-12 19:57:12,312 - [INFO] - aiogram.event - Update id=355042104 is handled. Duration 72 ms by bot id=8551466779
+2026-03-12 20:00:40,780 - [WARNING] - aiogram.dispatcher - Received SIGTERM signal
+2026-03-12 20:00:40,781 - [INFO] - aiogram.dispatcher - Polling stopped for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-12 20:00:40,781 - [INFO] - aiogram.dispatcher - Polling stopped
+2026-03-12 20:00:47,958 - [INFO] - root - 🚀 Бот успешно запущен! Пути настроены.
+2026-03-12 20:00:48,545 - [INFO] - aiogram.dispatcher - Start polling
+2026-03-12 20:00:48,610 - [INFO] - aiogram.dispatcher - Run polling for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-12 20:00:54,925 - [INFO] - aiogram.event - Update id=355042105 is handled. Duration 309 ms by bot id=8551466779
+2026-03-12 20:45:55,293 - [WARNING] - aiogram.dispatcher - Received SIGTERM signal
+2026-03-12 20:45:55,299 - [INFO] - aiogram.dispatcher - Polling stopped for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-12 20:45:55,300 - [INFO] - aiogram.dispatcher - Polling stopped
+2026-03-13 18:57:39,317 - [INFO] - root - 🚀 Бот успешно запущен! Пути настроены.
+2026-03-13 18:57:39,634 - [INFO] - aiogram.dispatcher - Start polling
+2026-03-13 18:57:39,699 - [INFO] - aiogram.dispatcher - Run polling for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-13 19:35:42,196 - [WARNING] - aiogram.dispatcher - Received SIGTERM signal
+2026-03-13 19:35:42,202 - [INFO] - aiogram.dispatcher - Polling stopped for bot @Barebershop_test_bot id=8551466779 - 'BarberBot'
+2026-03-13 19:35:42,202 - [INFO] - aiogram.dispatcher - Polling stopped

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chop-Chop | Барбершоп</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-message {
+            min-height: 20px;
+            font-size: 0.875rem;
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .card-img-top {
+            height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">💈 Chop-Chop</a>
+            <a href="/admin/" class="btn btn-outline-light btn-sm">Вход для админа</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Наши топ-мастера 🔥</h1>
+        <div class="row mb-5">
+            {% for master in masters_list %}
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        {% if master.photo %}
+                            <img src="{{ master.photo.url }}" class="card-img-top" alt="{{ master.name }}">
+                        {% else %}
+                            <div class="text-center p-5 text-muted bg-secondary bg-opacity-10">Нет фото 📷</div>
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h3 class="card-title">{{ master.name }}</h3>
+                            <p class="card-text text-muted">{{ master.description }}</p>
+                            <a href="https://t.me/Barebershop_test_bot?start={{ master.id }}" target="_blank" class="btn btn-outline-primary mt-2">Через Telegram ✈️</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="card shadow p-4 border-0">
+                    <h2 class="text-center mb-4">Записаться онлайн 📝</h2>
+
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Ваше имя:</label>
+                                {{ form.client_name }}
+                                <div class="text-danger small mt-1">{{ form.client_name.errors|striptags }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ваш телефон:</label>
+                                {{ form.phone }}
+                                <div class="text-danger small mt-1">{{ form.phone.errors|striptags }}</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Мастер:</label>
+                                {{ form.master }}
+                                <div class="text-danger small mt-1">{{ form.master.errors|striptags }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Услуга:</label>
+                                {{ form.service }}
+                                <div class="text-danger small mt-1">{{ form.service.errors|striptags }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Дата:</label>
+                                {{ form.date }}
+                                <div id="js-date-error" class="error-message">{{ form.date.errors|striptags }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Время:</label>
+                                {{ form.time }}
+                                <div class="text-danger small mt-1 fw-bold">{{ form.time.errors|striptags }}</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn btn-success w-100 btn-lg mt-3 shadow-sm">Отправить заявку ✅</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. ДАННЫЕ ВЫХОДНЫХ
+            let dayOffs = {};
+            try {
+                const rawData = '{{ day_offs_json|default:"{}"|safe }}';
+                dayOffs = JSON.parse(rawData);
+            } catch (e) { console.error("Ошибка JSON:", e); }
+
+            const masterSelect = document.getElementById('id_master');
+            const dateInput = document.getElementById('id_date');
+            const timeSelect = document.getElementById('id_time');
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('js-date-error');
+
+            // 2. БЛОКИРУЕМ ПРОШЛОЕ
+            const today = new Date().toISOString().split('T')[0];
+            if (dateInput) dateInput.setAttribute('min', today);
+
+            // 3. AJAX: ПРОВЕРКА ЗАНЯТОГО ВРЕМЕНИ
+            function updateAvailableHours() {
+                const masterId = masterSelect.value;
+                const dateVal = dateInput.value;
+
+                // Сброс списка времени
+                for (let i = 0; i < timeSelect.options.length; i++) {
+                    timeSelect.options[i].disabled = false;
+                    timeSelect.options[i].text = timeSelect.options[i].text.replace(' (Занято ⛔)', '');
+                }
+
+                if (!masterId || !dateVal) return;
+
+                fetch(`/get-booked-slots/?master_id=${masterId}&date=${dateVal}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const bookedList = data.booked;
+                        for (let i = 0; i < timeSelect.options.length; i++) {
+                            const optVal = timeSelect.options[i].value;
+                            const isBooked = bookedList.some(bt => optVal.startsWith(bt));
+                            if (isBooked) {
+                                timeSelect.options[i].disabled = true;
+                                timeSelect.options[i].text += ' (Занято ⛔)';
+                            }
+                        }
+                    });
+            }
+
+            // 4. ПРОВЕРКА ВЫХОДНОГО
+            function checkDayOff() {
+                const masterId = masterSelect.value;
+                const selectedDate = dateInput.value;
+
+                dateInput.classList.remove('is-invalid', 'border-danger', 'bg-danger', 'bg-opacity-10');
+                errorDiv.innerText = "";
+                submitBtn.disabled = false;
+                submitBtn.className = 'btn btn-success w-100 btn-lg mt-3 shadow-sm';
+
+                if (masterId && selectedDate) {
+                    if (dayOffs[masterId] && dayOffs[masterId].includes(selectedDate)) {
+                        dateInput.classList.add('is-invalid', 'border-danger', 'bg-danger', 'bg-opacity-10');
+                        errorDiv.innerText = "⛔ У мастера выходной! Выберите другую дату.";
+                        submitBtn.disabled = true;
+                        submitBtn.className = 'btn btn-secondary w-100 btn-lg mt-3 shadow-sm';
+                    } else {
+                        updateAvailableHours(); // Если не выходной, проверяем время
+                    }
+                }
+            }
+
+            masterSelect.addEventListener('change', checkDayOff);
+            dateInput.addEventListener('change', checkDayOff);
+        });
+    </script>
+</body>
+</html>

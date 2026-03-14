@@ -1,0 +1,51 @@
+services:
+  # Сервис Базы Данных
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=barber_db
+      - POSTGRES_USER=barber_user
+      - POSTGRES_PASSWORD=supersecretpassword
+    ports:
+      - "5433:5432"  # Внешний порт 5433, чтобы не конфликтовать с твоим ПК
+
+  # Сервис Django (Сайт)
+  web:
+    build: .
+    command: python web/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  # Сервис Бота
+  bot:
+    build: .
+    command: python barberBot/main.py
+    volumes:
+      # 👇 ДОБАВЛЯЕМ ЭТУ СТРОКУ (пробрасываем весь проект внутрь контейнера)
+      - .:/app
+      # Оставляем твой лог (хотя он теперь дублируется, но пусть будет для явности)
+      - ./bot_logs.txt:/app/bot_logs.txt
+    env_file:
+      - .env
+    depends_on:
+      - web
+      - db
+      - redis
+
+  # Сервис Redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
