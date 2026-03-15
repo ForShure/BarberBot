@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 
-
-
 @receiver(post_save, sender='shop.Appointment')
 def send_telegram_notification(sender, instance, created, **kwargs):
     logger.info(f"👀 СИГНАЛ СРАБОТАЛ! Запись ID: {instance.id}")

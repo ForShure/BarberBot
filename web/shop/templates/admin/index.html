@@ -1,0 +1,63 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div style="width: 100%; margin-bottom: 30px; clear: both;">
+        <h2 style="color: #fff; margin-bottom: 15px;">Аналитика за текущий месяц</h2>
+
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1; background: #2c3e50; padding: 20px; border-radius: 8px;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+            <div style="flex: 1; background: #2c3e50; padding: 20px; border-radius: 8px; max-height: 400px; display: flex; justify-content: center;">
+                <canvas id="appointmentsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{ block.super }}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/admin/shop/appointment/analytics/api/')
+                .then(response => response.json())
+                .then(data => {
+                    const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctxRevenue, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Выручка',
+                                data: data.revenue_data,
+                                backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545'],
+                            }]
+                        },
+                        options: {
+                            plugins: { title: { display: true, text: 'Выручка по мастерам', color: 'white' } },
+                            scales: { y: { ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } }
+                        }
+                    });
+
+                    const ctxAppointments = document.getElementById('appointmentsChart').getContext('2d');
+                    new Chart(ctxAppointments, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Количество записей',
+                                data: data.appointments_data,
+                                backgroundColor: ['#ffc107', '#dc3545', '#28a745', '#17a2b8'],
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            plugins: { title: { display: true, text: 'Количество записей', color: 'white' } }
+                        }
+                    });
+                });
+        });
+    </script>
+{% endblock %}

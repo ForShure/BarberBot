@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+<div id='calendar' style="background-color: white; padding: 20px; border-radius: 8px;"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek', // Вид по умолчанию - неделя с часами
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      locale: 'ru', // Русский язык
+      firstDay: 1,  // Понедельник - первый день
+      slotMinTime: '08:00:00', // Рабочий день с 8 утра
+      slotMaxTime: '22:00:00', // До 10 вечера
+      allDaySlot: false,
+
+      events: './events/' 
+    });
+    
+    calendar.render();
+  });
+</script>
+{% endblock %}

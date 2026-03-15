@@ -22,7 +22,10 @@ class Master(models.Model):
         blank=True,
         verbose_name="Описание"
     )
-
+    color = models.CharField(
+        max_length=7,
+        default="#76a2b3"
+    )
     def __str__(self):
         # Как объект будет отображаться в админке
         return self.name
