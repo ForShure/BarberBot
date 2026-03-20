@@ -11,10 +11,7 @@ urlpatterns = [
     path('', include('shop.urls')),
 ]
 
-# Пробиваем стену Докера напрямую:
-if settings.DEBUG:
-    # Говорим Джанго: "Если кто-то просит /static/, просто иди в папку static и отдавай файл без вопросов!"
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / 'static')
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-    # То же самое для фотографий
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / 'static')
