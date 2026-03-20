@@ -4,8 +4,8 @@ from django.urls import path
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
 from datetime import datetime
+from django.utils import timezone
 from django.db.models import Count, Sum
-from django.utils.timezone import now
 
 @admin.register(TelegramUser)
 class TelegramUsersAdmin(admin.ModelAdmin):
@@ -24,83 +24,86 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_filter = ("master", "date", "service")
     search_fields = ('id', 'user__username', 'user__chat_id')
     date_hierarchy = 'date'
-
     ordering = ('date', 'time')
-
     list_display_links = ('id', 'user')
-
     list_per_page = 50
 
     def get_urls(self):
         urls = super().get_urls()
 
-        my_urls = [
-            path('calendar/events/', self.admin_site.admin_view(self.calendar_events_api),
-                 name='appointment-calendar-events'),
-            path('calendar/', self.admin_site.admin_view(self.calendar_view), name='appointment-calendar'),
-            path('analytics/api/', self.admin_site.admin_view(self.analytics_api), name='analytics-api'),
+        custom_urls = [
+            path(
+                "calendar/",
+                self.admin_site.admin_view(self.calendar_view),
+                name="appointment-calendar",
+            ),
+            path(
+                "calendar/events/",
+                self.admin_site.admin_view(self.calendar_events_api),
+                name="appointment-calendar-events",
+            ),
+            path(
+                "analytics/api/",
+                self.admin_site.admin_view(self.analytics_api),
+                name="analytics-api",
+            ),
         ]
 
-        return my_urls + urls
+        return custom_urls + urls
 
     def calendar_view(self, request):
-        context = dict(
-            self.admin_site.each_context(request),
-            title="Календарь записей",
-        )
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Календарь записей",
+        }
+
         return TemplateResponse(request, "admin/calendar.html", context)
 
     def calendar_events_api(self, request):
-        appointments = Appointment.objects.select_related('master', 'user')
+        start = request.GET.get("start")
+        end = request.GET.get("end")
 
-        events = []
+        appointments = Appointment.objects.select_related("master", "user", "service")
 
-        for appointment in appointments:
-            start = datetime.combine(
-                appointment.date,
-                appointment.time
-            ).isoformat()
+        if start and end:
+            appointments = appointments.filter(
+                date__gte=start,
+                date__lte=end
+            )
 
-            client_name = appointment.user.username or str(appointment.user.chat_id)
-
-            events.append({
-                "title": f"{client_name} - {appointment.master.name}",
-                "start": start,
-                "url": f"/admin/shop/appointment/{appointment.id}/change/",
-                "color": appointment.master.color or "#76a2b3",
-            })
+        events = [
+            {
+                "title": f"{a.user.username or a.user.chat_id} - {a.master.name}",
+                "start": datetime.combine(a.date, a.time).isoformat(),
+                "url": f"/admin/shop/appointment/{a.id}/change/",
+                "color": a.master.color or "#76a2b3",
+            }
+            for a in appointments
+        ]
 
         return JsonResponse(events, safe=False)
 
     def analytics_api(self, request):
-        current_month = datetime.now().month
-        current_year = datetime.now().year
+        now_time = timezone.now()
 
-        stats = Appointment.objects.filter(
-            date__month=current_month,
-            date__year=current_year
-        ).values('master__name').annotate(
-            total_appointments=Count('id'),
-            total_revenue=Sum('service__price')
-        ).order_by('-total_appointments')
+        stats = (
+            Appointment.objects.filter(date__year=now_time.year, date__month=now_time.month)
+            .values("master__name")
+            .annotate(
+                total_appointments=Count("id"),
+                total_revenue=Sum("service__price"),
+            )
+            .order_by("-total_appointments")
+        )
 
-        labels = []
-        revenue_data = []
-        appointments_data = []
-
-        labels = []
-        revenue_data = []
-        appointments_data = []
-
-        for stat in stats:
-            labels.append(stat['master__name'])
-            revenue_data.append(stat['total_revenue'] or 0)
-            appointments_data.append(stat['total_appointments'] or 0)
+        labels = [s["master__name"] for s in stats]
+        revenue_data = [s["total_revenue"] or 0 for s in stats]
+        appointments_data = [s["total_appointments"] for s in stats]
 
         data = {
             "labels": labels,
             "revenue_data": revenue_data,
-            "appointments_data": appointments_data
+            "appointments_data": appointments_data,
         }
 
         return JsonResponse(data)

@@ -6,6 +6,8 @@ import redis
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import Master
+from .tasks import send_remind
+from datetime import datetime, timedelta
 
 # Настраиваем логгер, чтобы сообщения точно были видны в терминале
 logger = logging.getLogger(__name__)
@@ -34,6 +36,10 @@ def send_telegram_notification(sender, instance, created, **kwargs):
 
     service_name = instance.service.name if instance.service else "Не указана"
     master_name = instance.master.name if instance.master else "Не указан"
+    appointment_dt = datetime.combine(instance.date, instance.time)
+    reminder_time = appointment_dt - timedelta(hours=2)
+    if reminder_time > datetime.now():
+        send_remind.apply_async(args=[instance.id], eta=reminder_time)
 
     message = (
         f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
