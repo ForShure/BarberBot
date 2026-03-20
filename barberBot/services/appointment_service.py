@@ -200,44 +200,5 @@ def delete_appointment(app_id):
     Appointment.objects.filter(id=app_id).delete()
 
 
-# --- НОВАЯ ФУНКЦИЯ ДЛЯ НАПОМИНАНИЙ ---
-@sync_to_async
-def get_appointments_to_remind():
-    """Ищет записи, которые начнутся через 2 часа (+- 5 минут погрешность)"""
-    from datetime import timedelta  # Локальный импорт, если его нет вверху
-    now = timezone.localtime()
-    target_time = now + timedelta(hours=2)
 
-    start_range = target_time - timedelta(minutes=5)
-    end_range = target_time + timedelta(minutes=5)
-
-    return list(
-        Appointment.objects
-        .select_related('user', 'master')
-        .filter(
-            date=now.date(),
-            time__gte=start_range.time(),
-            time__lte=end_range.time()
-        )
-    )
-
-# 👇 ЭТУ ФУНКЦИЮ ТОЖЕ НУЖНО ДОБАВИТЬ (для main.py)
-async def send_reminders(bot):
-    """Эта функция запускается планировщиком"""
-    try:
-        appointments = await get_appointments_to_remind()
-
-        for app in appointments:
-            if app.user and app.user.chat_id:
-                try:
-                    text = (
-                        f"⏰ <b>НАПОМИНАНИЕ!</b>\n\n"
-                        f"Через 2 часа у вас стрижка у мастера {app.master.name}.\n"
-                        f"Ждем вас! 💈"
-                    )
-                    await bot.send_message(chat_id=app.user.chat_id, text=text, parse_mode="HTML")
-                except Exception:
-                    pass
-    except Exception as e:
-        print(f"Ошибка напоминаний: {e}")
 

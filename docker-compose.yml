@@ -10,7 +10,7 @@ services:
       - POSTGRES_USER=barber_user
       - POSTGRES_PASSWORD=supersecretpassword
     ports:
-      - "5433:5432"  # Внешний порт 5433, чтобы не конфликтовать с твоим ПК
+      - "5432:5432"
 
   # Сервис Django (Сайт)
   web:
@@ -46,6 +46,21 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
+
+  celery:
+    build: .
+    working_dir: /app/web
+    command: celery -A web worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Kyiv
+    depends_on:
+      - web
+      - db
+      - redis
 
 volumes:
   postgres_data:
