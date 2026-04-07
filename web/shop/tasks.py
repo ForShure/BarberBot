@@ -7,7 +7,7 @@ from django.conf import settings
 @shared_task
 def send_remind(appointment_id):
     appointment = Appointment.objects.filter(id=appointment_id).first()
-    token = settings.TELEGRAM_BOT_TOKEN
+    token = settings.TOKEN
     if appointment:
         if appointment.user:
             text_for_user = f"Запись к мастеру {appointment.master} будет в {appointment.time}, не опаздывайте"
