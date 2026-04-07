@@ -2,21 +2,7 @@ from django import forms
 from .models import Appointment, DayOff
 from django.utils import timezone
 
-TIME_CHOICES = [
-    ('10:00', '10:00'),
-    ('11:00', '11:00'),
-    ('12:00', '12:00'),
-    ('13:00', '13:00'),
-    ('14:00', '14:00'),
-    ('15:00', '15:00'),
-    ('16:00', '16:00'),
-    ('17:00', '17:00'),
-    ('18:00', '18:00'),
-    ('19:00', '19:00'),
-    ('20:00', '20:00'),
-    ('21:00', '21:00'),
-    ('22:00', '22:00'),
-]
+TIME_CHOICES = [(f"{hour}:00", f"{hour}:00") for hour in range(10, 23)]
 
 class AppointmentForm(forms.ModelForm):
     time = forms.ChoiceField(choices=TIME_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
