@@ -148,5 +148,7 @@ LOGGING = {
         },
     },
 }
+# add Token
+TOKEN = os.environ.get('TOKEN')
 
 
