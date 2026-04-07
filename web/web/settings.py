@@ -16,9 +16,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4dw+9&-nn@l0w_)+ame6$f$03n
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Читаем строку из .env (если её нет, ставим дефолт для локального ПК)
-env_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+env_hosts = os.environ.get('ALLOWED_HOSTS', '178.104.67.231,barberbot-zp.duckdns.org,localhost,127.0.0.1')
 # Разбиваем строку по запятой, превращая в список
-ALLOWED_HOSTS = env_hosts.split(',')
+ALLOWED_HOSTS = [host.strip() for host in env_hosts.split(',')]
+
+CSRF_TRUSTED_ORIGINS = ['https://barberbot-zp.duckdns.org']
 
 # Application definition
 INSTALLED_APPS = [
