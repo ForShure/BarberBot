@@ -15,7 +15,7 @@ services:
   # Сервис Django (Сайт)
   web:
     build: .
-    command: python web/manage.py runserver 0.0.0.0:8000
+    command: gunicorn --chdir web web.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
       - ./web/media:/app/web/media
