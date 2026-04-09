@@ -74,7 +74,6 @@ async def admin_exit(message: types.Message):
     await message.answer("Режим админа выключен.", reply_markup=create_main_keyboard(message.from_user.id))
 
 # --- Callback-и Админа ---
-
 @admin_router.callback_query(F.data.startswith("sched_"))
 async def open_master_schedule(callback: CallbackQuery):
     await callback.answer()
