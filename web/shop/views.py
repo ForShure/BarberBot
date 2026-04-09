@@ -4,7 +4,7 @@ from .forms import AppointmentForm
 from django.http import JsonResponse
 import os
 import json
-from .serializers import MasterSerializer, ServiceSerializer
+from .serializers import MasterSerializer, ServiceSerializer, AppointmentSerializer
 from rest_framework import generics
 
 ADMIN_ID = os.getenv("ADMIN_ID")
@@ -81,4 +81,14 @@ class ServiceListAPIView(generics.ListAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
 
+class AppointmentCreateAPIView(generics.CreateAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    def perform_create(self, serializer):
+        telegram_chat_id = self.request.data.get('telegram_chat_id')
+        if telegram_chat_id:
+            client_obj = TelegramUser.objects.filter(telegram_chat_id=telegram_chat_id).first()
+            serializer.save(user=client_obj)
+        else:
+            serializer.save()
 

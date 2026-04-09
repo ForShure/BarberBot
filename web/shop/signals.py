@@ -7,7 +7,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import Master
 from .tasks import send_remind
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, timedelta
 
 # Настраиваем логгер, чтобы сообщения точно были видны в терминале
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def send_telegram_notification(sender, instance, created, **kwargs):
     if reminder_time > datetime.now():
         send_remind.apply_async(args=[instance.id], eta=reminder_time)
 
-    message = (
+    message_admin = (
         f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
         f"👤 {instance.client_name or 'Не указано'}\n"
         f"📞 {instance.phone or 'Не указан'}\n"
@@ -59,15 +59,29 @@ def send_telegram_notification(sender, instance, created, **kwargs):
     )
 
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    data = {"chat_id": ADMIN_ID, "text": message, "parse_mode": "HTML"}
+    data_admin = {"chat_id": ADMIN_ID, "text": message_admin, "parse_mode": "HTML"}
 
     try:
-        response = requests.post(url, data=data, timeout=5)
+        response = requests.post(url, data=data_admin, timeout=5)
         logger.info(f"📨 Ответ Telegram: {response.status_code}")
         if response.status_code != 200:
             logger.error(f"Ответ сервера: {response.text}")
     except Exception as e:
         logger.error(f"💀 КРИТИЧЕСКАЯ ОШИБКА: {e}")
+
+    try:
+        if instance.user and instance.user.telegram_chat_id:
+            message = f"{instance.client_name}, вы успешно записаны к мастеру {master_name} на {current_date} в {current_time}!"
+            data = {"chat_id": instance.user.telegram_chat_id, "text": message, "parse_mode": "HTML"}
+
+            response_client = requests.post(url, data=data, timeout=5)
+            logger.info(f"📨 Ответ Telegram: {response_client.status_code}")
+
+            if response_client.status_code != 200:
+                logger.error(f"Ответ сервера: {response_client.text}")
+    except Exception as e:
+        logger.error(f"💀 КРИТИЧЕСКАЯ ОШИБКА: {e}")
+
 
 @receiver(post_save, sender=Master)
 @receiver(post_delete, sender=Master)

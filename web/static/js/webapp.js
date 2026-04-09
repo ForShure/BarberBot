@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -7,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const step1 = document.getElementById('step-1');
     const step2 = document.getElementById('step-2');
     const step3 = document.getElementById('step-3');
+    const step4 = document.getElementById('step-4'); // Добавили 4 шаг
 
     // Списки, куда мы будем добавлять кнопки
     const servicesList = document.getElementById('services-list');
@@ -22,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const allWorkSlots = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
 
-    // МАГИЯ ПРОТИВ NGROK: Секретный заголовок, чтобы он не блокировал API запросы
     const fetchOptions = {
         headers: {
             'ngrok-skip-browser-warning': 'true'
@@ -76,18 +90,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         step2.style.display = 'none';
         step3.style.display = 'block';
-        timeSlotsList.innerHTML = ''; // Очищаем старые кнопки или сообщения
+        timeSlotsList.innerHTML = ''; // Очищаем старые кнопки
 
         fetch(`/get-booked-slots/?master_id=${selectedMasterId}&date=${selectedDate}`, fetchOptions)
             .then(res => res.json())
             .then(data => {
-                // 🔥 НОВАЯ ЛОГИКА: ПРОВЕРКА НА ВЫХОДНОЙ
                 if (data.day_off === true) {
                     timeSlotsList.innerHTML = '<p style="text-align: center; margin-top: 20px; font-weight: bold;">🌴 Мастер в этот день отдыхает.<br>Пожалуйста, нажмите "Назад" и выберите другую дату.</p>';
-                    return; // Останавливаем выполнение функции, кнопки времени не рисуем!
+                    return;
                 }
 
-                // СТАРАЯ ЛОГИКА: ЕСЛИ ДЕНЬ РАБОЧИЙ, РИСУЕМ ВРЕМЯ
                 let rawBookedSlots = data.booked || data.booked_slots || data.booked_times || [];
                 const bookedSlots = rawBookedSlots.map(time => time.substring(0, 5));
 
@@ -103,14 +115,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         btn.addEventListener('click', function() {
                             selectedTime = slot;
 
-                            const bookingData = {
-                                service_id: selectedServiceId,
-                                master_id: selectedMasterId,
-                                date: selectedDate,
-                                time: selectedTime
-                            };
-
-                            tg.sendData(JSON.stringify(bookingData));
+                            // 🔥 ПЕРЕХОД НА 4 ШАГ ВМЕСТО ЗАКРЫТИЯ БОТА
+                            step3.style.display = 'none';
+                            step4.style.display = 'block';
                         });
                     }
                     timeSlotsList.appendChild(btn);
@@ -136,5 +143,78 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btn-back-to-date').addEventListener('click', function() {
         step3.style.display = 'none';
         step2.style.display = 'block';
+    });
+
+    // Кнопка "Назад" с 4-го шага
+    document.getElementById('btn-back-to-time').addEventListener('click', function() {
+        step4.style.display = 'none';
+        step3.style.display = 'block';
+    });
+
+    // 4. ЛОГИКА ФИНАЛЬНОЙ ОТПРАВКИ ДАННЫХ (API POST)
+    const btnSubmit = document.getElementById('btn-submit');
+
+    btnSubmit.addEventListener('click', function() {
+        const clientName = document.getElementById('client-name').value;
+        const clientPhone = document.getElementById('client-phone').value;
+
+        if (!clientName || !clientPhone) {
+            alert("Пожалуйста, введите имя и телефон!");
+            return;
+        }
+
+        btnSubmit.disabled = true;
+    btnSubmit.innerText = "Отправка...";
+
+    // Достаем ID пользователя из Телеграма (если открыто в боте)
+    let tgUserId = null;
+    // Безопасная проверка: убеждаемся, что объект юзера вообще существует
+    if (window.Telegram && window.Telegram.WebApp &&
+        window.Telegram.WebApp.initDataUnsafe &&
+        window.Telegram.WebApp.initDataUnsafe.user) {
+
+        tgUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
+    }
+
+    // Формируем JSON, добавляя новое поле
+    const appointmentData = {
+        client_name: clientName,
+        phone: clientPhone,
+        master: selectedMasterId,
+        service: selectedServiceId,
+        date: selectedDate,
+        time: selectedTime,
+        telegram_chat_id: tgUserId // <-- ВОТ ОНО! Передаем ID на бэкенд
+    };
+
+        fetch('/api/appointment/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(appointmentData)
+        })
+        .then(response => {
+            if (response.status === 201) {
+                alert("✅ Вы успешно записаны!");
+
+                if (window.Telegram && window.Telegram.WebApp) {
+                    Telegram.WebApp.close();
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert("❌ Ошибка при записи. Возможно, время уже занято.");
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "✅ Подтвердить запись";
+            }
+        })
+        .catch(error => {
+            console.error('Network Error:', error);
+            alert("❌ Ошибка сети. Попробуйте еще раз.");
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = "✅ Подтвердить запись";
+        });
     });
 });

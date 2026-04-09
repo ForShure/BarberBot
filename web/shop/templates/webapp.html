@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Запись к барберу</title>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <link rel="stylesheet" href="{% static 'css/webapp.css' %}">
 </head>
 <body>
@@ -35,6 +33,15 @@
             <h2>Доступное время</h2>
             <div id="time-slots-list"></div>
             <button id="btn-back-to-date" class="action-btn back-btn">Назад к дате</button>
+        </div>
+
+        <div id="step-4" style="display: none;">
+            <h2>Ваши контактные данные</h2>
+            <input type="text" id="client-name" placeholder="Имя">
+            <input type="tel" id="client-phone" placeholder="Номер телефона">
+
+            <button id="btn-submit" class="action-btn" style="background-color: #4CAF50; color: white;">✅ Подтвердить запись</button>
+            <button id="btn-back-to-time" class="action-btn back-btn" style="margin-top: 10px;">Назад ко времени</button>
         </div>
     </div>
 

@@ -39,3 +39,22 @@ input[type="date"] {
     font-size: 18px;
     box-sizing: border-box;
 }
+#step-4 input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    box-sizing: border-box; /* Чтобы padding не вылезал за края */
+    transition: all 0.3s ease;
+}
+
+/* Красивое подсвечивание поля, когда клиент вводит текст */
+#step-4 input:focus {
+    border-color: #2481cc; /* Цвет в стиле Telegram */
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(36, 129, 204, 0.3);
+}
