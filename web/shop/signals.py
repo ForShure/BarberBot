@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from .models import Master
 from .tasks import send_remind
 from datetime import datetime, timedelta
+from django.conf import settings
 
 # Настраиваем логгер, чтобы сообщения точно были видны в терминале
 logger = logging.getLogger(__name__)
@@ -81,6 +82,29 @@ def send_telegram_notification(sender, instance, created, **kwargs):
                 logger.error(f"Ответ сервера: {response_client.text}")
     except Exception as e:
         logger.error(f"💀 КРИТИЧЕСКАЯ ОШИБКА: {e}")
+
+    if instance.master and instance.master.telegram_id:
+        text_for_master = (
+            f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
+            f"👤 Клиент: {instance.client_name or 'С сайта'}\n"
+            f"📞 Телефон: <code>{instance.phone or 'Не указан'}</code>\n"
+            # Используем безопасные current_date и current_time
+            f"📅 Дата: {current_date.strftime('%d.%m.%Y')}\n"
+            f"⏰ Время: {current_time.strftime('%H:%M')}\n"
+            f"💸 Услуга: {service_name}"
+        )
+        payload_master = {
+            "chat_id": instance.master.telegram_id,
+            "text": text_for_master,
+            "parse_mode": "HTML"
+        }
+
+        try:
+            response_master = requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", json=payload_master,
+                                            timeout=5)
+            logger.info(f"📨 Ответ Telegram (Мастер): {response_master.status_code}")
+        except Exception as e:
+            logger.error(f"💀 Ошибка отправки мастеру: {e}")
 
 
 @receiver(post_save, sender=Master)

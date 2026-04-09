@@ -42,7 +42,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'web.urls'
@@ -103,15 +103,14 @@ STATICFILES_DIRS = [
 
 # ИСПРАВЛЕНИЕ 2: Пока мы разрабатываем (и постоянно меняем JS/CSS),
 # нам не нужно, чтобы WhiteNoise сжимал и блокировал файлы.
-# Вернем это перед выгрузкой в интернет.
-# STORAGES = {
-#     "default": {
-#         "BACKEND": "django.core.files.storage.FileSystemStorage",
-#     },
-#     "staticfiles": {
-#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-#     },
-# }
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+     },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+     },
+ }
 
 # Настройки для медиа-файлов (картинки товаров)
 MEDIA_URL = '/media/'
