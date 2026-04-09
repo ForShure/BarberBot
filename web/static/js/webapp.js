@@ -30,6 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("TG:", tg.initDataUnsafe);
 
     function getTelegramUserId() {
+        // 1. Сначала ищем ID в нашей ссылке (100% надежно)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get('user_id');
+
+        if (userIdFromUrl) {
+            return parseInt(userIdFromUrl, 10); // Возвращаем как число
+        }
+
+        // 2. Если в ссылке нет, пытаемся достать стандартным способом
         if (
             window.Telegram &&
             Telegram.WebApp &&
@@ -38,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ) {
             return Telegram.WebApp.initDataUnsafe.user.id;
         }
+
         return null;
     }
 

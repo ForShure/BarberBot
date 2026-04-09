@@ -45,7 +45,10 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
         services = await appointment_service.get_services()
         await message.answer("🌐 Выбор услуги:", reply_markup=create_services_keyboard(services, command.args))
     else:
-        await message.answer("✂️ Добро пожаловать! Выберите действие:", reply_markup=create_main_keyboard())
+        await message.answer(
+            "✂️ Добро пожаловать! Выберите действие:",
+            reply_markup=create_main_keyboard(message.from_user.id)
+        )
 
 
 @user_router.message(F.contact)

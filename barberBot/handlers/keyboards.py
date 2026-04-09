@@ -179,13 +179,13 @@ def create_delete_keyboard(appointment_id):
     return builder.as_markup()
 
 # Главное меню
-def create_main_keyboard():
-    """
-    Главное меню пользователя.
-    """
+def create_main_keyboard(user_id: int):
+    # Вшиваем user_id прямо в ссылку!
+    url = f"https://barberbot-zp.duckdns.org/webapp/?user_id={user_id}"
+
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url="https://barberbot-zp.duckdns.org/webapp/?nocache=1"))],
+            [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url=url))],
             [KeyboardButton(text="Мои записи")],
             [KeyboardButton(text="Профиль")],
         ],
