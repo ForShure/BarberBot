@@ -197,8 +197,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const tgUserId = getTelegramUserId();
-        console.log("TG USER ID:", tgUserId);
+        // 🔥 ВЫРЕЗАЕМ ID ИЗ ССЫЛКИ ГРУБОЙ СИЛОЙ (РЕГУЛЯРКОЙ)
+        let finalUserId = null;
+        const urlMatch = window.location.href.match(/user_id=(\d+)/);
+        if (urlMatch) {
+            finalUserId = parseInt(urlMatch[1], 10);
+        } else if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            finalUserId = tg.initDataUnsafe.user.id;
+        }
+
+        console.log("ОТПРАВЛЯЕМ ID:", finalUserId);
 
         const data = {
             client_name: clientName,
@@ -207,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             service: selectedServiceId,
             date: selectedDate,
             time: selectedTime,
-            telegram_chat_id: tgUserId
+            telegram_chat_id: finalUserId
         };
 
         btnSubmit.disabled = true;
