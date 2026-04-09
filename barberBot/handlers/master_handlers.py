@@ -19,7 +19,7 @@ master_router.callback_query.filter(IsMaster())
 
 @master_router.message(Command("master"))
 async def admin_start(message: types.Message):
-    await message.answer("✂️ Кабинет мастера активен!", reply_markup=create_master_keyboard())
+    await message.answer("✂️ Кабинет мастера активен!", reply_markup=create_master_keyboard(message.from_user.id))
 
 # Вспомогательная функция (не хендлер, просто функция)
 async def show_appointments_for_date(message: types.Message, target_date, telegram_id):
