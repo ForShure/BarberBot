@@ -70,12 +70,12 @@ def send_telegram_notification(sender, instance, created, **kwargs):
         logger.error(f"💀 КРИТИЧЕСКАЯ ОШИБКА: {e}")
 
     try:
-        if instance.user and instance.user.telegram_chat_id:
+        if instance.user and instance.user.chat_id:
             message = f"{instance.client_name}, вы успешно записаны к мастеру {master_name} на {current_date} в {current_time}!"
-            data = {"chat_id": instance.user.telegram_chat_id, "text": message, "parse_mode": "HTML"}
+            data = {"chat_id": instance.user.chat_id, "text": message, "parse_mode": "HTML"}
 
             response_client = requests.post(url, data=data, timeout=5)
-            logger.info(f"📨 Ответ Telegram: {response_client.status_code}")
+            logger.info(f"📨 Ответ Telegram (Клиент): {response_client.status_code}")
 
             if response_client.status_code != 200:
                 logger.error(f"Ответ сервера: {response_client.text}")
