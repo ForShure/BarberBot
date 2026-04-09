@@ -54,7 +54,7 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
 @user_router.message(F.contact)
 async def handle_contact(message: types.Message):
     await appointment_service.save_user_phone(message.chat.id, message.contact.phone_number)
-    await message.answer("✅ Номер сохранен!", reply_markup=create_main_keyboard())
+    await message.answer("✅ Номер сохранен!", reply_markup=create_main_keyboard(message.from_user.id))
 
 @user_router.message(F.text == "Мастера")
 async def show_masters(message: types.Message):
@@ -268,9 +268,10 @@ async def save_new_phone(message: types.Message, state: FSMContext):
 
     # ПРОВЕРЯЕМ ЗАПИСКУ:
     if data.get("is_registration"):
-        await message.answer("✂️ Добро пожаловать! Выберите действие:", reply_markup=create_main_keyboard())
+        await message.answer("✂️ Добро пожаловать! Выберите действие:",
+                             reply_markup=create_main_keyboard(message.from_user.id))
     else:
-        await message.answer("Возвращаем вас в меню:", reply_markup=create_main_keyboard())
+        await message.answer("Возвращаем вас в меню:", reply_markup=create_main_keyboard(message.from_user.id))
 
 
 

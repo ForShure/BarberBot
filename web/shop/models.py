@@ -15,6 +15,12 @@ class Master(models.Model):
         null=True,
         blank=True
     )
+    telegram_id = models.BigIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Telegram ID мастера",
+        help_text="ID аккаунта мастера в Телеграм для доступа к кабинету"
+    )
 
     # Краткое описание (опыт, стиль и т.д.)
     description = models.TextField(
