@@ -280,8 +280,16 @@ def create_keyboard_return_master(master_id):
     builder.adjust(1)
     return builder.as_markup()
 
+def create_master_keyboard(user_id):
 
-
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📅 Записи на сегодня")],
+            [KeyboardButton(text="📅 Записи на завтра")],
+            [KeyboardButton(text="🔙 Выйти")],
+        ],
+        resize_keyboard=True
+    )
 
 
 

@@ -1,7 +1,8 @@
 import logging
-from datetime import datetime, timedelta
-
 import pytz
+
+from config import TIMEZONE
+from datetime import datetime, timedelta
 from aiogram import Bot
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
@@ -135,7 +136,6 @@ def get_appointments_by_id(appointment_id: int):
     )
 
 
-
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 from datetime import timedelta
@@ -143,9 +143,6 @@ from shop.models import Appointment, Service, TelegramUser
 
 
 # --- СУЩЕСТВУЮЩИЕ ФУНКЦИИ ---
-@sync_to_async
-def get_services():
-    return list(Service.objects.all())
 
 @sync_to_async
 def get_appointments_by_id(app_id):
@@ -163,42 +160,18 @@ def get_user_appointments(user_id):
         .order_by('date', 'time')
     )
 
-
-@sync_to_async
-def get_taken_slots(master_id, date_str):
-    return list(
-        Appointment.objects
-        .filter(master_id=master_id, date=date_str)
-        .values_list('time', flat=True)
-    )
-
-
-@sync_to_async
-def create_appointment(user_id, master_id, service_id, date_str, time_str):
-    try:
-        user = TelegramUser.objects.get(chat_id=user_id)
-
-        # Получаем объект телефона из профиля (если есть) или пустоту
-        phone_number = user.phone if user.phone else ""
-
-        appointment = Appointment.objects.create(
-            user=user,
-            master_id=master_id,
-            service_id=service_id,
-            date=date_str,
-            time=time_str,
-            client_name=user.username or "Telegram Client",  # Дублируем имя
-            phone=phone_number  # Дублируем телефон в саму запись
-        )
-        return appointment
-    except Exception as e:
-        print(f"Ошибка создания записи: {e}")
-        return None
-
 @sync_to_async
 def delete_appointment(app_id):
     Appointment.objects.filter(id=app_id).delete()
 
 
+@sync_to_async
+def get_master_appointments_by_date(target_date, telegram_id):
+    appointments = Appointment.objects.filter(
+        date=target_date,
+        master__telegram_id=telegram_id
+    ).select_related('service', 'user', 'master').order_by('time')
+
+    return list(appointments)
 
 

@@ -1,34 +1,32 @@
 import asyncio
 import logging
-import os
 import sys
 
 # ==========================================
 # 🚑 ЭКСТРЕННАЯ НАСТРОЙКА ПУТЕЙ (DOCKER FIX)
 # ==========================================
-# Добавляем папку /app/web в пути Python, чтобы он видел 'shop' и 'web.settings'
-# В Docker мы точно знаем, что код лежит в /app
 sys.path.append('/app/web')
-
-# На всякий случай добавляем корень проекта
 sys.path.append('/app')
 
-# Теперь импортируем и запускаем Django
 import django_setup
 # ==========================================
 
 from aiogram import Bot, Dispatcher
-
-
-# Если ты перенес config.py в папку barberBot, то импорт сработает:
 from config import BOT_TOKEN, TIMEZONE
 
-# Импортируем роутеры (с защитой, если имена файлов отличаются)
+# Импортируем роутеры (здесь названия файлов должны быть логичными)
 try:
     from handlers.admin_private import admin_router
 except ImportError:
     from handlers.admin_private import router as admin_router
 
+# 🔥 МАСТЕР
+try:
+    from handlers.master_handlers import master_router
+except ImportError:
+    from handlers.master_handlers import router as master_router
+
+# 🔥 ЮЗЕР
 try:
     from handlers.master_bot import user_router
 except ImportError:
@@ -42,6 +40,7 @@ async def main():
 
     # Регистрируем роутеры
     dp.include_router(admin_router)
+    dp.include_router(master_router)
     dp.include_router(user_router)
 
     logging.info("🚀 Бот успешно запущен! Пути настроены.")

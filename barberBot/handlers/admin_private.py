@@ -71,7 +71,7 @@ async def admin_schedule(message: types.Message):
 
 @admin_router.message(F.text.contains("Выйти"))
 async def admin_exit(message: types.Message):
-    await message.answer("Режим админа выключен.", reply_markup=create_main_keyboard())
+    await message.answer("Режим админа выключен.", reply_markup=create_main_keyboard(message.from_user.id))
 
 # --- Callback-и Админа ---
 
