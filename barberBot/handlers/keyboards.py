@@ -185,7 +185,7 @@ def create_main_keyboard():
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url="https://tvoy-domen.com/webapp/?v=1"))],
+            [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url="https://tvoy-domen.com/webapp/"))],
             [KeyboardButton(text="Мои записи")],
             [KeyboardButton(text="Профиль")],
         ],
