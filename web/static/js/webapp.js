@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const debugDiv = document.createElement('div');
     debugDiv.style.cssText = "background: yellow; color: black; padding: 10px; font-weight: bold; font-size: 14px; word-wrap: break-word;";
-    debugDiv.innerHTML = "Данные от ТГ: " + JSON.stringify(tg.initDataUnsafe);
+
+    debugDiv.innerHTML = "ТГ: " + JSON.stringify(tg.initDataUnsafe) + "<br><br>URL: " + window.location.href;
     document.body.prepend(debugDiv);
 
     console.log("TG:", tg.initDataUnsafe);
