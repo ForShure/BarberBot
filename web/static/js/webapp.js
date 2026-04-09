@@ -1,18 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
+
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -84,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btn-next').addEventListener('click', function() {
         selectedDate = datePicker.value;
         if (!selectedDate) {
-            alert('Пожалуйста, выберите дату!');
+            if (tg.showAlert) tg.showAlert('Пожалуйста, выберите дату!');
+            else alert('Пожалуйста, выберите дату!');
             return;
         }
 
@@ -114,8 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         btn.textContent = slot;
                         btn.addEventListener('click', function() {
                             selectedTime = slot;
-
-                            // 🔥 ПЕРЕХОД НА 4 ШАГ ВМЕСТО ЗАКРЫТИЯ БОТА
                             step3.style.display = 'none';
                             step4.style.display = 'block';
                         });
@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
         step2.style.display = 'block';
     });
 
-    // Кнопка "Назад" с 4-го шага
     document.getElementById('btn-back-to-time').addEventListener('click', function() {
         step4.style.display = 'none';
         step3.style.display = 'block';
@@ -159,33 +158,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const clientPhone = document.getElementById('client-phone').value;
 
         if (!clientName || !clientPhone) {
-            alert("Пожалуйста, введите имя и телефон!");
+            if (tg.showAlert) tg.showAlert("Пожалуйста, введите имя и телефон!");
+            else alert("Пожалуйста, введите имя и телефон!");
             return;
         }
 
         btnSubmit.disabled = true;
-    btnSubmit.innerText = "Отправка...";
+        btnSubmit.innerText = "Отправка...";
 
-    // Достаем ID пользователя из Телеграма (если открыто в боте)
-    let tgUserId = null;
-    // Безопасная проверка: убеждаемся, что объект юзера вообще существует
-    if (window.Telegram && window.Telegram.WebApp &&
-        window.Telegram.WebApp.initDataUnsafe &&
-        window.Telegram.WebApp.initDataUnsafe.user) {
+        // Достаем ID пользователя из Телеграма (если открыто в боте)
+        let tgUserId = null;
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            tgUserId = tg.initDataUnsafe.user.id;
+        }
 
-        tgUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
-    }
-
-    // Формируем JSON, добавляя новое поле
-    const appointmentData = {
-        client_name: clientName,
-        phone: clientPhone,
-        master: selectedMasterId,
-        service: selectedServiceId,
-        date: selectedDate,
-        time: selectedTime,
-        telegram_chat_id: tgUserId // <-- ВОТ ОНО! Передаем ID на бэкенд
-    };
+        // Формируем JSON
+        const appointmentData = {
+            client_name: clientName,
+            phone: clientPhone,
+            master: selectedMasterId,
+            service: selectedServiceId,
+            date: selectedDate,
+            time: selectedTime,
+            telegram_chat_id: tgUserId // Передаем ID на бэкенд
+        };
 
         fetch('/api/appointment/', {
             method: 'POST',
@@ -197,22 +193,27 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (response.status === 201) {
-                alert("✅ Вы успешно записаны!");
-
-                if (window.Telegram && window.Telegram.WebApp) {
-                    Telegram.WebApp.close();
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    // Красивый встроенный алерт Телеграма
+                    tg.showAlert("✅ Вы успешно записаны!", function() {
+                        tg.close();
+                    });
                 } else {
+                    // Обычный алерт, если открыли с браузера ПК
+                    alert("✅ Вы успешно записаны!");
                     location.reload();
                 }
             } else {
-                alert("❌ Ошибка при записи. Возможно, время уже занято.");
+                if (tg.showAlert) tg.showAlert("❌ Ошибка при записи. Возможно, время уже занято.");
+                else alert("❌ Ошибка при записи. Возможно, время уже занято.");
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "✅ Подтвердить запись";
             }
         })
         .catch(error => {
             console.error('Network Error:', error);
-            alert("❌ Ошибка сети. Попробуйте еще раз.");
+            if (tg.showAlert) tg.showAlert("❌ Ошибка сети. Попробуйте еще раз.");
+            else alert("❌ Ошибка сети. Попробуйте еще раз.");
             btnSubmit.disabled = false;
             btnSubmit.innerText = "✅ Подтвердить запись";
         });
