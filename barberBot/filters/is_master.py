@@ -4,7 +4,7 @@ from asgiref.sync import sync_to_async
 from shop.models import Master
 
 # find id
-@sync_to_asyns
+@sync_to_async
 def id_finder():
     return Master.object.filter(telegram_id=telegram_id).first()
 
