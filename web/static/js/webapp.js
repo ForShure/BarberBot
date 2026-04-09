@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
     tg.ready();
     tg.expand();
 
+    const debugDiv = document.createElement('div');
+    debugDiv.style.cssText = "background: yellow; color: black; padding: 10px; font-weight: bold; font-size: 14px; word-wrap: break-word;";
+    debugDiv.innerHTML = "Данные от ТГ: " + JSON.stringify(tg.initDataUnsafe);
+    document.body.prepend(debugDiv);
+
     console.log("TG:", tg.initDataUnsafe);
 
     function getTelegramUserId() {
