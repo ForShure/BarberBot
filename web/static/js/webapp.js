@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tg.ready();
     tg.expand();
 
-    console.log("TG INIT DATA:", tg.initDataUnsafe);
+    console.log("TG:", tg.initDataUnsafe);
 
     function getTelegramUserId() {
         if (
