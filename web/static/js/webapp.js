@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             data.forEach(service => {
                 const btn = document.createElement('button');
-                btn.textContent = service.name;
+                btn.innerHTML = `<i class="fa-solid fa-hand-scissors"></i> ${service.name}`;
                 btn.className = 'action-btn';
 
                 btn.addEventListener('click', function() {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             data.forEach(master => {
                 const btn = document.createElement('button');
-                btn.textContent = master.name;
+                btn.innerHTML = `<i class="fa-solid fa-star"></i> ${master.name}`;
                 btn.className = 'master-btn';
 
                 btn.addEventListener('click', function() {
@@ -146,10 +146,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     btn.className = 'time-btn';
 
                     if (bookedSlots.includes(slot)) {
-                        btn.textContent = slot + ' (занято)';
+                        btn.innerHTML = `<i class="fa-solid fa-ban"></i> ${slot} (занято)`;
                         btn.disabled = true;
                     } else {
-                        btn.textContent = slot;
+                        btn.innerHTML = `<i class="fa-regular fa-clock"></i> ${slot}`;
                         btn.addEventListener('click', function() {
                             selectedTime = slot;
                             step3.style.display = 'none';

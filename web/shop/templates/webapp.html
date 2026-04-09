@@ -5,45 +5,58 @@
     <meta charset="UTF-8">
     <title>Запись к барберу</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/webapp.css' %}">
 </head>
 <body>
     <div id="app">
         <div id="step-0">
-            <h1>Выберите услугу</h1>
+            <h1><i class="fa-solid fa-scissors" style="color: #4CAF50;"></i> Выберите услугу</h1>
             <div id="services-list"></div>
         </div>
 
         <div id="step-1" style="display: none;">
-            <h1>Выберите мастера</h1>
+            <h1><i class="fa-solid fa-user-tie" style="color: #4CAF50;"></i> Выберите мастера</h1>
             <div id="masters-list"></div>
-            <button id="btn-back-to-services" class="action-btn back-btn" style="margin-top: 20px;">Назад к услугам</button>
+            <button id="btn-back-to-services" class="action-btn back-btn" style="margin-top: 20px;">
+                <i class="fa-solid fa-arrow-left"></i> Назад к услугам
+            </button>
         </div>
 
         <div id="step-2" style="display: none;">
-            <h2 id="selected-master-title">Мастер</h2>
-            <p>Выберите дату:</p>
-            <input type="date" id="date-picker">
-            <button id="btn-next" class="action-btn">Далее (Выбрать время)</button>
-            <button id="btn-back-to-masters" class="action-btn back-btn">Назад к мастерам</button>
+            <h2 id="selected-master-title"><i class="fa-solid fa-user-check"></i> Мастер</h2>
+            <p><i class="fa-regular fa-calendar-days"></i> Выберите дату:</p>
+            <input type="date" id="date-picker" style="font-family: inherit;">
+            <button id="btn-next" class="action-btn">
+                Далее <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button id="btn-back-to-masters" class="action-btn back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Назад к мастерам
+            </button>
         </div>
 
         <div id="step-3" style="display: none;">
-            <h2>Доступное время</h2>
+            <h2><i class="fa-regular fa-clock" style="color: #4CAF50;"></i> Доступное время</h2>
             <div id="time-slots-list"></div>
-            <button id="btn-back-to-date" class="action-btn back-btn">Назад к дате</button>
+            <button id="btn-back-to-date" class="action-btn back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Назад к дате
+            </button>
         </div>
 
         <div id="step-4" style="display: none;">
-            <h2>Ваши контактные данные</h2>
-            <input type="text" id="client-name" placeholder="Имя">
-            <input type="tel" id="client-phone" placeholder="Номер телефона">
+            <h2><i class="fa-solid fa-address-card" style="color: #4CAF50;"></i> Ваши контакты</h2>
+            <input type="text" id="client-name" placeholder="👤 Имя">
+            <input type="tel" id="client-phone" placeholder="📞 Номер телефона">
 
-            <button id="btn-submit" class="action-btn" style="background-color: #4CAF50; color: white;">✅ Подтвердить запись</button>
-            <button id="btn-back-to-time" class="action-btn back-btn" style="margin-top: 10px;">Назад ко времени</button>
+            <button id="btn-submit" class="action-btn" style="background-color: #4CAF50; color: white;">
+                <i class="fa-solid fa-check-double"></i> Подтвердить запись
+            </button>
+            <button id="btn-back-to-time" class="action-btn back-btn" style="margin-top: 10px;">
+                <i class="fa-solid fa-arrow-left"></i> Назад ко времени
+            </button>
         </div>
     </div>
 
-    <script src="{% static 'js/webapp.js' %}?v=7"></script>
+    <script src="{% static 'js/webapp.js' %}?v=8"></script>
 </body>
 </html>
