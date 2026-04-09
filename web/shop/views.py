@@ -86,8 +86,9 @@ class AppointmentCreateAPIView(generics.CreateAPIView):
     serializer_class = AppointmentSerializer
     def perform_create(self, serializer):
         telegram_chat_id = self.request.data.get('telegram_chat_id')
+        print("TELEGRAM ID:", telegram_chat_id)
         if telegram_chat_id:
-            client_obj = TelegramUser.objects.filter(chat_id=telegram_chat_id).first()
+            client_obj, _ = TelegramUser.objects.get_or_create(chat_id=telegram_chat_id)
             serializer.save(user=client_obj)
         else:
             serializer.save()
