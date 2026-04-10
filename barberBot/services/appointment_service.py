@@ -174,4 +174,3 @@ def get_master_appointments_by_date(target_date, telegram_id):
 
     return list(appointments)
 
-

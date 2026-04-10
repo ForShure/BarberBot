@@ -2,7 +2,7 @@ import json
 import redis.asyncio as redis
 
 from asgiref.sync import sync_to_async
-from shop.models import Master, DayOff, Service
+from shop.models import Master, DayOff, Service, SalonConfig
 from datetime import datetime, timedelta
 
 
@@ -46,3 +46,8 @@ def get_master_by_id(master_id):
 @sync_to_async
 def get_service_by_id(service):
     return Service.objects.filter(id=service).first()
+
+@sync_to_async
+def get_salon_config():
+    salon_db = SalonConfig.objects.first()
+    return salon_db

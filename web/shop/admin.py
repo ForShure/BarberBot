@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Master, TelegramUser, Service, Appointment, DayOff
+from .models import Master, TelegramUser, Service, Appointment, DayOff, SalonConfig
 from django.urls import path
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
@@ -118,3 +118,8 @@ class DayOffAdmin(admin.ModelAdmin):
     list_display = ('master', 'date')
     list_filter = ('master', 'date')
     date_hierarchy = 'date'
+
+@admin.register(SalonConfig)
+class SalonConfigAdmin(admin.ModelAdmin):
+    list_display = ("welcome_text", "salon_name", "telephone_number", "address",)
+    search_fields = ("salon_name", "address")

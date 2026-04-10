@@ -169,6 +169,29 @@ class DayOff(models.Model):
     def __str__(self):
         return f"{self.master} — выходной {self.date}"
 
-
+class SalonConfig(models.Model):
+    salon_name = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True)
+    welcome_text = models.TextField(null=True, blank=True)
+    telephone_number = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True
+    )
+    address = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True
+    )
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+    class Meta:
+        verbose_name = "Настройки салона"
+        verbose_name_plural = "Настройки салона"
+    def __str__(self):
+        return "⚙️ Основные настройки"
 
 

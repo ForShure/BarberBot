@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 
 from config import ADMIN_ID
 from services import user_service, master_service, appointment_service
-from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id
+from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id, get_salon_config
 from states import ProfileStates
 
 
@@ -31,7 +31,13 @@ user_router = Router()
 async def start(message: types.Message, command: CommandObject, state: FSMContext):
     await user_service.register_user(message.chat.id, message.from_user.username)
 
+    config = await get_salon_config()
+    if config and config.welcome_text:
+        welcome_message = config.welcome_text
+    else:
+        welcome_message = "Добро пожаловать! Выберите действие:"
     user = await appointment_service.get_user_by_chat_id(message.chat.id)
+
     if not user.phone:
         await message.answer("📱 Нам нужен ваш номер телефона для записи:", reply_markup=create_contact_keyboard())
 
@@ -46,7 +52,7 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
         await message.answer("🌐 Выбор услуги:", reply_markup=create_services_keyboard(services, command.args))
     else:
         await message.answer(
-            "✂️ Добро пожаловать! Выберите действие:",
+            welcome_message,
             reply_markup=create_main_keyboard(message.from_user.id)
         )
 
