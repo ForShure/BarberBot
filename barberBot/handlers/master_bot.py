@@ -9,6 +9,7 @@ from aiogram.fsm.context import FSMContext
 from config import ADMIN_ID
 from services import user_service, master_service, appointment_service
 from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id, get_salon_config
+from services.google_sheets_service import save_to_google_sheet
 from states import ProfileStates
 
 
@@ -90,10 +91,17 @@ async def handle_web_app_data(message: Message):
     user_telegram_id = message.from_user.id
 
     # 4. Сохраняем в базу (тут ты передаешь ID, это правильно!)
-    await appointment_service.create_appointment(
+    app = await appointment_service.create_appointment(
         user_telegram_id, master_id, service_id, date_val, time_val
     )
+    if app:
+        client_phone = app.user.phone if app.user else "Не указан"
 
+        await save_to_google_sheet(
+            date_val, time_val, message.from_user.full_name,
+            client_phone, service_name, master_name,
+            app.service.price
+        )
     # 5. Красивый текст для клиента с ИМЕНАМИ
     text = (
         f"🎉 <b>Успешная запись!</b>\n\n"
@@ -175,6 +183,14 @@ async def handle_time(callback: CallbackQuery):
         await callback.message.edit_text(
             f"✅ <b>ВЫ ЗАПИСАНЫ!</b>\n📅 {date_val} в {time_val}\n✂️ Мастер: {app.master.name}",
             parse_mode="HTML"
+        )
+
+        client_phone = app.user.phone if app.user else "Не указан"
+
+        await save_to_google_sheet(
+            date_val, time_val, callback.from_user.full_name,
+            client_phone, app.service.name, app.master.name,
+            app.service.price
         )
         try:
             await callback.bot.send_message(
