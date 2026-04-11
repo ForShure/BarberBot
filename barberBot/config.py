@@ -6,6 +6,7 @@ load_dotenv()
 
 # Настройки бота
 BOT_TOKEN = os.getenv("TOKEN")
+PAYMENT_TOKEN = os.getenv("PAYMENT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 # Часовой пояс

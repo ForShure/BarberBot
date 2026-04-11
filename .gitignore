@@ -7,4 +7,4 @@ __pycache__/
 media/
 *.log
 bot_logs.txt
-google_credentials.json
+web/google_credentials.json

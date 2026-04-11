@@ -1,9 +1,8 @@
 import json
-
 from aiogram import Router, F, types
 from aiogram.filters import Command, CommandObject
-from aiogram.types import CallbackQuery, FSInputFile, Message
-
+from aiogram.types import CallbackQuery, FSInputFile, Message, LabeledPrice, PreCheckoutQuery
+from config import PAYMENT_TOKEN
 from aiogram.fsm.context import FSMContext
 
 from config import ADMIN_ID
@@ -294,6 +293,38 @@ async def save_new_phone(message: types.Message, state: FSMContext):
                              reply_markup=create_main_keyboard(message.from_user.id))
     else:
         await message.answer("Возвращаем вас в меню:", reply_markup=create_main_keyboard(message.from_user.id))
+
+@user_router.message(Command("pay"))
+async def send_invoice(message: types.Message):
+    if not PAYMENT_TOKEN:
+        await message.answer("Ошибка: Токен оплаты не найден.")
+        return
+    prices = [LabeledPrice(label="Предоплата", amount=10000)]
+    pay_message = await message.answer_invoice(
+        title="Предоплата за стрижку",
+        description="Оплата услугу",
+        payload="barber-deposit-123",
+        provider_token=PAYMENT_TOKEN,
+        currency="UAH",
+        prices=prices,
+        start_parameter="test-payment"
+    )
+
+@user_router.pre_checkout_query()
+async def pre_checkout_query_handler(pre_checkout_query: PreCheckoutQuery):
+    await pre_checkout_query.answer(ok=True)
+@user_router.message(F.successful_payment)
+async def successful_payment_handler(message: types.Message):
+    payment_info = message.successful_payment
+    amount = payment_info.total_amount // 100
+
+    text = (
+        f"Оплата получена\n"
+        f"Сумма:{amount} {payment_info.currency}\n"
+        f"Спасибо\n"
+    )
+
+    await message.answer(text, parse_mode="HTML")
 
 
 
