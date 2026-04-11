@@ -12,7 +12,7 @@ Designed with scalability in mind, the system supports a SaaS-like architecture 
 
 ## 🔗 Live Demo
 
-- 🤖 Bot: https://t.me/YOUR_BOT  
+- 🤖 Bot: https://t.me/Barebershop_test_bot
 - 🌐 WebApp: https://barberbot-zp.duckdns.org/webapp/  
 
 ---
