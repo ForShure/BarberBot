@@ -2,6 +2,7 @@ import requests
 import os
 import logging
 import redis
+import gspread
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -14,6 +15,30 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
+def send_to_google_from_django(appointment):
+    print("⏳ [DJANGO] Пытаюсь записать в Гугл...")
+    try:
+        gc = gspread.service_account(filename='google_credentials.json')
+        sh = gc.open("Вишенка")
+        worksheet = sh.sheet1
+
+        # Достаем телефон безопасно (на случай, если юзера нет)
+        phone = appointment.phone if appointment.phone else "Не указан"
+        client_name = appointment.client_name if appointment.client_name else "Не указано"
+
+        new_row = [
+            str(appointment.date),
+            str(appointment.time),
+            client_name,
+            phone,
+            appointment.service.name,
+            appointment.master.name,
+            str(appointment.service.price)
+        ]
+        worksheet.append_row(new_row)
+        print("✅ [DJANGO] СТРОКА В ГУГЛ УСПЕШНО ДОБАВЛЕНА!")
+    except Exception as e:
+        print(f"❌ [DJANGO ОШИБКА ГУГЛ]: {e}")
 
 @receiver(post_save, sender='shop.Appointment')
 def send_telegram_notification(sender, instance, created, **kwargs):
@@ -50,6 +75,8 @@ def send_telegram_notification(sender, instance, created, **kwargs):
     reminder_time = appointment_dt - timedelta(hours=2)
     if reminder_time > datetime.now():
         send_remind.apply_async(args=[instance.id], eta=reminder_time)
+
+    send_to_google_from_django(instance)
 
     message_admin = (
         f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
