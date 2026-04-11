@@ -21,6 +21,6 @@ jobs:
           script: |
             cd ~/BarberBot
             git pull
-            docker-compose restart web bot celery
+            docker-compose up -d --build web bot celery
             docker-compose exec -T web python web/manage.py migrate
             docker-compose exec -T web python web/manage.py collectstatic --no-input
