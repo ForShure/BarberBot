@@ -15,7 +15,7 @@ import pytz
 from datetime import datetime, timedelta
 
 from aiogram.types import InlineKeyboardButton, KeyboardButton, WebAppInfo
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 from aiogram.types import ReplyKeyboardMarkup
 
 
@@ -187,6 +187,7 @@ def create_main_keyboard(user_id: int):
         keyboard=[
             [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url=url))],
             [KeyboardButton(text="Мои записи")],
+            [KeyboardButton(text="🎁 Сертификаты")],
             [KeyboardButton(text="Профиль")],
         ],
         resize_keyboard=True
@@ -291,6 +292,11 @@ def create_master_keyboard(user_id):
         resize_keyboard=True
     )
 
+def create_cert_keyboard():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Купить за 500 UAH", callback_data="buy_cert_500")]
+    ])
+    return keyboard
 
 
 

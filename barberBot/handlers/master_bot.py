@@ -2,10 +2,9 @@ import json
 from aiogram import Router, F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, FSInputFile, Message, LabeledPrice, PreCheckoutQuery
-from config import PAYMENT_TOKEN
 from aiogram.fsm.context import FSMContext
 
-from config import ADMIN_ID
+from config import ADMIN_ID, PAYMENT_TOKEN
 from services import user_service, master_service, appointment_service
 from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id, get_salon_config
 from services.google_sheets_service import save_to_google_sheet
@@ -20,7 +19,8 @@ from handlers.keyboards import (
     create_contact_keyboard,
     create_main_keyboard,
     create_delete_keyboard,
-    create_keyboard_return_master
+    create_keyboard_return_master,
+    create_cert_keyboard,
 )
 
 user_router = Router()
@@ -294,38 +294,50 @@ async def save_new_phone(message: types.Message, state: FSMContext):
     else:
         await message.answer("Возвращаем вас в меню:", reply_markup=create_main_keyboard(message.from_user.id))
 
-@user_router.message(Command("pay"))
-async def send_invoice(message: types.Message):
+@user_router.message(F.text == "🎁 Сертификаты")
+async def show_certificates(message: types.Message):
+    await message.answer(
+        text="Это сертификаты на покупку разных услуг и косметики в нашем барбершопе 💈",
+        reply_markup=create_cert_keyboard()
+    )
+
+@user_router.callback_query(F.data == "buy_cert_500")
+async def send_invoice(callback: CallbackQuery):
     if not PAYMENT_TOKEN:
-        await message.answer("Ошибка: Токен оплаты не найден.")
+        await callback.message.answer("Ошибка: Токен оплаты не найден.")
         return
-    prices = [LabeledPrice(label="Предоплата", amount=10000)]
-    pay_message = await message.answer_invoice(
-        title="Предоплата за стрижку",
+    prices = [LabeledPrice(label="Предоплата", amount=50000)]
+    await callback.message.answer_invoice(
+        title="Подарочный сертификат",
         description="Оплата услугу",
-        payload="barber-deposit-123",
+        payload="cert_500",
         provider_token=PAYMENT_TOKEN,
         currency="UAH",
         prices=prices,
         start_parameter="test-payment"
     )
+    await callback.answer()
 
 @user_router.pre_checkout_query()
 async def pre_checkout_query_handler(pre_checkout_query: PreCheckoutQuery):
     await pre_checkout_query.answer(ok=True)
+
 @user_router.message(F.successful_payment)
 async def successful_payment_handler(message: types.Message):
     payment_info = message.successful_payment
     amount = payment_info.total_amount // 100
+    if payment_info.invoice_payload == "cert_500":
+        # Генерируем фейковый промокод (для красоты)
+        import random
+        promo_code = f"BARBER-{random.randint(1000, 9999)}"
 
-    text = (
-        f"Оплата получена\n"
-        f"Сумма:{amount} {payment_info.currency}\n"
-        f"Спасибо\n"
-    )
-
-    await message.answer(text, parse_mode="HTML")
-
+        text = (
+            f"🎉 <b>Оплата успешно получена!</b>\n"
+            f"Вы купили сертификат на {amount} {payment_info.currency}.\n\n"
+            f"🎁 Ваш уникальный код: <code>{promo_code}</code>\n"
+            f"Покажите его администратору при визите!"
+        )
+        await message.answer(text, parse_mode="HTML")
 
 
 
