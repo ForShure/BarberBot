@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Master, TelegramUser, Service, Appointment, DayOff, SalonConfig
+from .models import Master, TelegramUser, Service, Appointment, DayOff, SalonConfig, Certificate
 from django.urls import path
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
@@ -123,3 +123,9 @@ class DayOffAdmin(admin.ModelAdmin):
 class SalonConfigAdmin(admin.ModelAdmin):
     list_display = ("welcome_text", "salon_name", "telephone_number", "address",)
     search_fields = ("salon_name", "address")
+
+@admin.register(Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    list_display = ("promo", "telegram_id", "amount", "status", "date",)
+    list_filter = ("status", "date")
+    search_fields = ("promo", "telegram_id",)

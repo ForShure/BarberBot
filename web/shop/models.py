@@ -194,4 +194,19 @@ class SalonConfig(models.Model):
     def __str__(self):
         return "⚙️ Основные настройки"
 
+class Certificate(models.Model):
+    telegram_id = models.BigIntegerField()
+    promo = models.CharField(
+        max_length=50,
+        unique=True
+    )
+    amount = models.IntegerField()
+    status = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.telegram_id} - {self.date}"
+
+
+
 

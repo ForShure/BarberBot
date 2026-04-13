@@ -1,4 +1,6 @@
 import json
+import random
+
 from aiogram import Router, F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, FSInputFile, Message, LabeledPrice, PreCheckoutQuery
@@ -8,6 +10,7 @@ from config import ADMIN_ID, PAYMENT_TOKEN
 from services import user_service, master_service, appointment_service
 from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id, get_salon_config
 from services.google_sheets_service import save_to_google_sheet
+from services.appointment_service import save_certificate
 from states import ProfileStates
 
 
@@ -326,10 +329,12 @@ async def pre_checkout_query_handler(pre_checkout_query: PreCheckoutQuery):
 async def successful_payment_handler(message: types.Message):
     payment_info = message.successful_payment
     amount = payment_info.total_amount // 100
+    user_id = message.from_user.id
+
     if payment_info.invoice_payload == "cert_500":
-        # Генерируем фейковый промокод (для красоты)
-        import random
-        promo_code = f"BARBER-{random.randint(1000, 9999)}"
+        promo_code = f"BARBER-{random.randint(100000, 999999)}"
+
+        await save_certificate(user_id, promo_code, amount)
 
         text = (
             f"🎉 <b>Оплата успешно получена!</b>\n"
@@ -337,6 +342,7 @@ async def successful_payment_handler(message: types.Message):
             f"🎁 Ваш уникальный код: <code>{promo_code}</code>\n"
             f"Покажите его администратору при визите!"
         )
+
         await message.answer(text, parse_mode="HTML")
 
 

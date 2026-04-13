@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils import timezone
 
-from shop.models import Master, TelegramUser, Appointment, Service
+from shop.models import Master, TelegramUser, Appointment, Service, Certificate
 
 # СОЗДАНИЕ ЗАПИСИ
 @sync_to_async
@@ -135,13 +135,6 @@ def get_appointments_by_id(appointment_id: int):
         .first()
     )
 
-
-from asgiref.sync import sync_to_async
-from django.utils import timezone
-from datetime import timedelta
-from shop.models import Appointment, Service, TelegramUser
-
-
 # --- СУЩЕСТВУЮЩИЕ ФУНКЦИИ ---
 
 @sync_to_async
@@ -173,4 +166,9 @@ def get_master_appointments_by_date(target_date, telegram_id):
     ).select_related('service', 'user', 'master').order_by('time')
 
     return list(appointments)
+
+@sync_to_async
+def save_certificate(telegram_id, promo, amount):
+    certificate = Certificate.objects.create(telegram_id=telegram_id, promo=promo, amount=amount)
+    return certificate
 
