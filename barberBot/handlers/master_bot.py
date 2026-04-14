@@ -10,7 +10,7 @@ from config import ADMIN_ID, PAYMENT_TOKEN
 from services import user_service, master_service, appointment_service
 from services.master_service import get_weekends_days, get_master_by_id, get_service_by_id, get_salon_config
 from services.google_sheets_service import save_to_google_sheet
-from services.appointment_service import save_certificate
+from services.appointment_service import save_certificate, get_user_certificates
 from states import ProfileStates
 
 
@@ -309,11 +309,12 @@ async def send_invoice(callback: CallbackQuery):
     if not PAYMENT_TOKEN:
         await callback.message.answer("Ошибка: Токен оплаты не найден.")
         return
+    promo_code = f"BARBER-{random.randint(100000, 999999)}"
     prices = [LabeledPrice(label="Предоплата", amount=50000)]
     await callback.message.answer_invoice(
         title="Подарочный сертификат",
         description="Оплата услугу",
-        payload="cert_500",
+        payload=promo_code,
         provider_token=PAYMENT_TOKEN,
         currency="UAH",
         prices=prices,
@@ -331,19 +332,34 @@ async def successful_payment_handler(message: types.Message):
     amount = payment_info.total_amount // 100
     user_id = message.from_user.id
 
-    if payment_info.invoice_payload == "cert_500":
-        promo_code = f"BARBER-{random.randint(100000, 999999)}"
+    promo_code = payment_info.invoice_payload
+    certificate, created = await save_certificate(user_id, promo_code, amount)
+    if not created:
+        return
+    text = (
+        f"🎉 <b>Оплата успешно получена!</b>\n"
+        f"Вы купили сертификат на {amount} {payment_info.currency}.\n\n"
+        f"🎁 Ваш уникальный код: <code>{promo_code}</code>\n"
+        f"Покажите его администратору при визите!"
+    )
 
-        await save_certificate(user_id, promo_code, amount)
+    await message.answer(text, parse_mode="HTML")
 
-        text = (
-            f"🎉 <b>Оплата успешно получена!</b>\n"
-            f"Вы купили сертификат на {amount} {payment_info.currency}.\n\n"
-            f"🎁 Ваш уникальный код: <code>{promo_code}</code>\n"
-            f"Покажите его администратору при визите!"
-        )
+@user_router.message(Command("my_cert"))
+async def my_cert(message: types.Message):
+    user_id = message.from_user.id
+    cert = await get_user_certificates(user_id)
 
-        await message.answer(text, parse_mode="HTML")
+    answer_text = (
+        f"<b>🎟 Ваши активные сертификаты:</b>\n\n"
+    )
+    if cert:
+        for c in cert:
+            answer_text += f"🎁 Код: <code>{c.promo}</code> — {c.sum} UAH\n"
+        await message.answer(answer_text, parse_mode="HTML")
+    else:
+        await message.answer(f"У вас пока нет активных сертификатов")
+
 
 
 

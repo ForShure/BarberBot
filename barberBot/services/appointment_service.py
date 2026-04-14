@@ -169,6 +169,16 @@ def get_master_appointments_by_date(target_date, telegram_id):
 
 @sync_to_async
 def save_certificate(telegram_id, promo, amount):
-    certificate = Certificate.objects.create(telegram_id=telegram_id, promo=promo, amount=amount)
-    return certificate
+    certificate, created = Certificate.objects.get_or_create(
+        promo=promo,
+        defaults={'telegram_id': telegram_id, 'amount': amount}
+    )
+    return certificate, created
+
+@sync_to_async
+def get_user_certificates(telegram_id):
+    return list(
+        Certificate.objects
+        .filter(telegram_id=telegram_id, status=False)
+    )
 
