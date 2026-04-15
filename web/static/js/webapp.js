@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 btn.addEventListener('click', function() {
                     selectedMasterId = master.id;
-                    document.getElementById('selected-master-title').textContent = 'Мастер: ' + master.name;
+                    document.getElementById('selected-master-title').textContent = 'Specialist: ' + master.name;
                     step1.style.display = 'none';
                     step2.style.display = 'block';
                 });
@@ -109,25 +109,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ДАТА → ВРЕМЯ
     document.getElementById('btn-next').addEventListener('click', function() {
-
         selectedDate = datePicker.value;
 
         if (!selectedDate) {
-            tg.showAlert("Выберите дату");
+            tg.showAlert("Please select a date");
             return;
         }
 
         step2.style.display = 'none';
         step3.style.display = 'block';
-
         timeSlotsList.innerHTML = '';
 
         fetch(`/get-booked-slots/?master_id=${selectedMasterId}&date=${selectedDate}`, fetchOptions)
             .then(res => res.json())
             .then(data => {
-
                 if (data.day_off) {
-                    timeSlotsList.innerHTML = '<p>Мастер отдыхает</p>';
+                    timeSlotsList.innerHTML = '<p>The specialist is off today</p>';
                     return;
                 }
 
@@ -138,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     btn.className = 'time-btn';
 
                     if (bookedSlots.includes(slot)) {
-                        btn.innerHTML = `<i class="fa-solid fa-ban"></i> ${slot} (занято)`;
+                        btn.innerHTML = `<i class="fa-solid fa-ban"></i> ${slot} (booked)`;
                         btn.disabled = true;
                     } else {
                         btn.innerHTML = `<i class="fa-regular fa-clock"></i> ${slot}`;
@@ -148,10 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             step4.style.display = 'block';
                         });
                     }
-
                     timeSlotsList.appendChild(btn);
                 });
-
             });
     });
 
@@ -180,12 +175,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnSubmit = document.getElementById('btn-submit');
 
     btnSubmit.addEventListener('click', function() {
-
         const clientName = document.getElementById('client-name').value;
         const clientPhone = document.getElementById('client-phone').value;
 
         if (!clientName || !clientPhone) {
-            tg.showAlert("Введите имя и телефон");
+            tg.showAlert("Please enter your name and phone number");
             return;
         }
 
@@ -211,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         btnSubmit.disabled = true;
-        btnSubmit.innerText = "Отправка...";
+        btnSubmit.innerText = "Sending...";
 
         fetch('/api/appointment/', {
             method: 'POST',
@@ -223,30 +217,26 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => {
             if (res.status === 201) {
-                // ИСПРАВЛЕНО: проверяем finalUserId вместо несуществующего tgUserId
                 if (finalUserId) {
-                    // Показываем красивое окно ТГ и закрываем WebApp после нажатия "ОК"
-                    tg.showAlert("✅ Запись успешно создана!", function() {
+                    tg.showAlert("✅ Booking successfully created!", function() {
                         tg.close();
                     });
                 } else {
-                    alert("Запись создана!");
+                    alert("Booking created!");
                     location.reload();
                 }
             } else {
-                tg.showAlert("Произошла ошибка при записи.");
+                tg.showAlert("An error occurred during booking.");
                 btnSubmit.disabled = false;
-                btnSubmit.innerText = "Подтвердить запись";
+                btnSubmit.innerText = "Confirm Booking";
             }
         })
         .catch(err => {
             console.error(err);
-            // Если реально пропал интернет
-            tg.showAlert("Ошибка соединения с сервером.");
+            tg.showAlert("Server connection error.");
             btnSubmit.disabled = false;
-            btnSubmit.innerText = "Подтвердить запись";
+            btnSubmit.innerText = "Confirm Booking";
         });
-
     });
 
 });

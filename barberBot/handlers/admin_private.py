@@ -30,48 +30,47 @@ admin_router.callback_query.filter(F.from_user.id == ADMIN_ID)
 
 @admin_router.message(Command("admin"))
 async def admin_start(message: types.Message):
-    await message.answer("👨‍💼 Админ-панель активна!", reply_markup=create_admin_keyboard())
+    await message.answer("👨‍💼 The admin panel is active!", reply_markup=create_admin_keyboard())
 
 # Вспомогательная функция (не хендлер, просто функция)
 async def show_appointments_for_date(message: types.Message, target_date):
     appointments = await appointment_service.get_appointments_by_date(target_date)
 
     if not appointments:
-        await message.answer("📭 Записей нет")
+        await message.answer("📭 There are no entries.")
         return
 
     for app in appointments:
         time_str = app.time.strftime("%H:%M")
-        client_name = app.client_name or (app.user.username if app.user else "Клиент с сайта")
-        client_phone = app.phone or (app.user.phone if app.user else "Нет номера")
-
+        client_name = app.client_name or (app.user.username if app.user else "Client from the website")
+        client_phone = app.phone or (app.user.phone if app.user else "No number")
         text = (
             f"🕒 <b>{time_str}</b> — {app.service.name}\n"
             f"👤 {client_name}\n"
             f"📞 <code>{client_phone}</code>\n"
-            f"✂️ Мастер: {app.master.name}\n"
+            f"✂️ Master: {app.master.name}\n"
             f"➖➖➖➖➖➖➖➖"
         )
         await message.answer(text, parse_mode="HTML", reply_markup=create_delete_keyboard(app.id))
 
-@admin_router.message(F.text == "📅 Записи на сегодня")
+@admin_router.message(F.text == "📅 Today's entries")
 async def admin_today(message: types.Message):
     today = datetime.now(TIMEZONE).date()
     await show_appointments_for_date(message, today)
 
-@admin_router.message(F.text == "📅 Записи на завтра")
+@admin_router.message(F.text == "📅 Entries for tomorrow")
 async def admin_tomorrow(message: types.Message):
     tomorrow = datetime.now(TIMEZONE).date() + timedelta(days=1)
     await show_appointments_for_date(message, tomorrow)
 
-@admin_router.message(F.text == "📅 График работы")
+@admin_router.message(F.text == "📅 Master's schedule")
 async def admin_schedule(message: types.Message):
     masters = await master_service.get_all_masters()
-    await message.answer("Выберите мастера:", reply_markup=create_admin_master_keyboard(masters))
+    await message.answer("Choose a master:", reply_markup=create_admin_master_keyboard(masters))
 
-@admin_router.message(F.text.contains("Выйти"))
+@admin_router.message(F.text.contains("Exit"))
 async def admin_exit(message: types.Message):
-    await message.answer("Режим админа выключен.", reply_markup=create_main_keyboard(message.from_user.id))
+    await message.answer("Admin mode is disabled.", reply_markup=create_main_keyboard(message.from_user.id))
 
 # --- Callback-и Админа ---
 @admin_router.callback_query(F.data.startswith("sched_"))
@@ -80,7 +79,7 @@ async def open_master_schedule(callback: CallbackQuery):
     master_id = callback.data.split("_")[1]
     day_off = await get_weekends_days(master_id)
     await callback.message.edit_text(
-        "📅 График мастера. Нажмите на дату, чтобы изменить:",
+        "📅 Master's schedule. Click on the date to change:",
         reply_markup=get_master_schedule_keyboard(master_id, day_off)
     )
 

@@ -57,7 +57,7 @@ def create_services_keyboard(services, master_id):
     # Кнопка назад
     builder.row(
         InlineKeyboardButton(
-            text="🔙 Назад",
+            text="🔙 Back",
             callback_data="back_to_masters"
         )
     )
@@ -93,7 +93,7 @@ def create_data_keyboard(master_id, service_id, day_off):
 
     builder.row(
         InlineKeyboardButton(
-            text="🔙 Назад",
+            text="🔙 Back",
             callback_data=f"back_to_services_{master_id}"
         )
     )
@@ -142,7 +142,7 @@ def create_time_keyboard(master_id, service_id, date, occupied_times):
 
     builder.row(
         InlineKeyboardButton(
-            text="🔙 Назад",
+            text="🔙 Back",
             callback_data=f"back_to_dates_{master_id}_{service_id}"
         )
     )
@@ -156,7 +156,7 @@ def create_contact_keyboard():
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📱 Отправить номер", request_contact=True)]
+            [KeyboardButton(text="📱 Send number", request_contact=True)]
         ],
         resize_keyboard=True,
         one_time_keyboard=True
@@ -171,7 +171,7 @@ def create_delete_keyboard(appointment_id):
     builder = InlineKeyboardBuilder()
 
     builder.button(
-        text="❌ Удалить запись",
+        text="❌ delete entry",
         callback_data=f"del_{appointment_id}"
     )
 
@@ -185,10 +185,10 @@ def create_main_keyboard(user_id: int):
 
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📅 Записаться онлайн", web_app=WebAppInfo(url=url))],
-            [KeyboardButton(text="Мои записи")],
-            [KeyboardButton(text="🎁 Сертификаты")],
-            [KeyboardButton(text="Профиль")],
+            [KeyboardButton(text="📅 Register online", web_app=WebAppInfo(url=url))],
+            [KeyboardButton(text="My appointments")],
+            [KeyboardButton(text="🎁 Certificates")],
+            [KeyboardButton(text="Profile")],
         ],
         resize_keyboard=True
     )
@@ -200,10 +200,10 @@ def create_admin_keyboard():
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📅 Записи на сегодня")],
-            [KeyboardButton(text="📅 Записи на завтра")],
-            [KeyboardButton(text="📅 График работы")],
-            [KeyboardButton(text="🔙 Выйти")],
+            [KeyboardButton(text="📅 Today's appointments")],
+            [KeyboardButton(text="📅 Tomorrow's appointments")],
+            [KeyboardButton(text="📅 Schedule")],
+            [KeyboardButton(text="🔙 Logout")],
         ],
         resize_keyboard=True
     )
@@ -262,7 +262,7 @@ def create_profile_keyboard():
     """
     builder = InlineKeyboardBuilder()
 
-    builder.button(text="✏️ Изменить номер", callback_data="change_phone")
+    builder.button(text="✏️ Change phone number", callback_data="change_phone")
 
     return builder.as_markup()
 
@@ -270,11 +270,11 @@ def create_keyboard_return_master(master_id):
     builder = InlineKeyboardBuilder()
 
     builder.button(
-        text="📅 Записаться к этому мастеру",
+        text="📅 Make an appointment with this specialist",
         callback_data=f"book_master_{master_id}"
     )
     builder.button(
-        text="🔙 Назад",
+        text="🔙 Back",
         callback_data="back_to_masters"
     )
 
@@ -285,16 +285,16 @@ def create_master_keyboard(user_id):
 
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📅 Записи на сегодня")],
-            [KeyboardButton(text="📅 Записи на завтра")],
-            [KeyboardButton(text="🔙 Выйти")],
+            [KeyboardButton(text="📅 Today's Posts")],
+            [KeyboardButton(text="📅 Tomorrow's Posts")],
+            [KeyboardButton(text="🔙 Logout")],
         ],
         resize_keyboard=True
     )
 
 def create_cert_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Купить за 500 UAH", callback_data="buy_cert_500")]
+        [InlineKeyboardButton(text="Buy for 500 UAH", callback_data="buy_cert_500")]
     ])
     return keyboard
 

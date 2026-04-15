@@ -38,11 +38,11 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
     if config and config.welcome_text:
         welcome_message = config.welcome_text
     else:
-        welcome_message = "Добро пожаловать! Выберите действие:"
+        welcome_message = "Welcome! Select an action:"
     user = await appointment_service.get_user_by_chat_id(message.chat.id)
 
     if not user.phone:
-        await message.answer("📱 Нам нужен ваш номер телефона для записи:", reply_markup=create_contact_keyboard())
+        await message.answer("📱 We need your phone number to make an appointment.:", reply_markup=create_contact_keyboard())
 
 
         await state.update_data(is_registration=True)
@@ -52,7 +52,7 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
 
     if command.args:
         services = await appointment_service.get_services()
-        await message.answer("🌐 Выбор услуги:", reply_markup=create_services_keyboard(services, command.args))
+        await message.answer("🌐 Selecting a service:", reply_markup=create_services_keyboard(services, command.args))
     else:
         await message.answer(
             welcome_message,
@@ -63,12 +63,12 @@ async def start(message: types.Message, command: CommandObject, state: FSMContex
 @user_router.message(F.contact)
 async def handle_contact(message: types.Message):
     await appointment_service.save_user_phone(message.chat.id, message.contact.phone_number)
-    await message.answer("✅ Номер сохранен!", reply_markup=create_main_keyboard(message.from_user.id))
+    await message.answer("✅ The number has been saved.!", reply_markup=create_main_keyboard(message.from_user.id))
 
 @user_router.message(F.text == "Мастера")
 async def show_masters(message: types.Message):
     masters = await master_service.get_all_masters()
-    await message.answer("Наши мастера:", reply_markup=create_masters_keyboard(masters))
+    await message.answer("Our masters:", reply_markup=create_masters_keyboard(masters))
 
 @user_router.message(F.web_app_data)
 async def handle_web_app_data(message: Message):
@@ -106,12 +106,12 @@ async def handle_web_app_data(message: Message):
         )
     # 5. Красивый текст для клиента с ИМЕНАМИ
     text = (
-        f"🎉 <b>Успешная запись!</b>\n\n"
-        f"✂️ Мастер: {master_name}\n"
-        f"📅 Услуга: {service_name}\n"
-        f"📅 Дата: {date_val}\n"
-        f"⏰ Время: {time_val}\n\n"
-        f"Ждем вас!"
+        f"🎉 <b>Successful recording!</b>\n\n"
+        f"✂️ Master: {master_name}\n"
+        f"📅 Service: {service_name}\n"
+        f"📅 Date: {date_val}\n"
+        f"⏰ Time: {time_val}\n\n"
+        f"Waiting for you!"
     )
     await message.answer(text, parse_mode="HTML")
 
@@ -120,7 +120,7 @@ async def handle_web_app_data(message: Message):
 async def show_notes(message: types.Message):
     appointments = await appointment_service.get_user_appointments(message.from_user.id)
     if not appointments:
-        await message.answer("У вас нет активных записей.")
+        await message.answer("You have no active posts.")
         return
 
     for app in appointments:
@@ -137,7 +137,7 @@ async def show_profile(message: types.Message):
         phone = user.phone if user.phone else "Не указан"
 
         # Формируем текст ОДИН раз, подставляя переменную phone
-        text = f"👤 <b>Ваш профиль:</b>\n📱 Телефон: {phone}"
+        text = f"👤 <b>Your profile:</b>\n📱 Phone number: {phone}"
 
         await message.answer(text, parse_mode="HTML")
 
@@ -160,14 +160,14 @@ async def select_service(callback: CallbackQuery):
     _, service_id, master_id = callback.data.split('_')
     day_off = await get_weekends_days(master_id)
 
-    await callback.message.edit_text("Выберите дату:", reply_markup=create_data_keyboard(master_id, service_id, day_off))
+    await callback.message.edit_text("Select date:", reply_markup=create_data_keyboard(master_id, service_id, day_off))
 
 @user_router.callback_query(F.data.startswith('data_'))
 async def select_date(callback: CallbackQuery):
     _, date_val, master_id, service_id = callback.data.split('_')
     taken_slots = await appointment_service.get_taken_slots(master_id, date_val)
 
-    await callback.message.edit_text("Выберите время:", reply_markup=create_time_keyboard(master_id, service_id, date_val, taken_slots))
+    await callback.message.edit_text("Select time:", reply_markup=create_time_keyboard(master_id, service_id, date_val, taken_slots))
 
 @user_router.callback_query(F.data.startswith('time_'))
 async def handle_time(callback: CallbackQuery):
@@ -183,11 +183,11 @@ async def handle_time(callback: CallbackQuery):
 
     if app:
         await callback.message.edit_text(
-            f"✅ <b>ВЫ ЗАПИСАНЫ!</b>\n📅 {date_val} в {time_val}\n✂️ Мастер: {app.master.name}",
+            f"✅ <b>YOU ARE SIGNED UP!</b>\n📅 {date_val} at {time_val}\n✂️ master: {app.master.name}",
             parse_mode="HTML"
         )
 
-        client_phone = app.user.phone if app.user else "Не указан"
+        client_phone = app.user.phone if app.user else "Not specified"
 
         await save_to_google_sheet(
             date_val, time_val, callback.from_user.full_name,
@@ -197,13 +197,13 @@ async def handle_time(callback: CallbackQuery):
         try:
             await callback.bot.send_message(
                 chat_id=ADMIN_ID,
-                text=f"🚀 <b>НОВАЯ ЗАПИСЬ (БОТ)!</b>\n👤 @{callback.from_user.username}\n📅 {date_val} {time_val}",
+                text=f"🚀 <b>NEW POST (BOT)!</b>\n👤 @{callback.from_user.username}\n📅 {date_val} {time_val}",
                 parse_mode="HTML"  # 👈 Волшебная таблетка
             )
         except:
             pass
     else:
-        await callback.answer("Ошибка! Возможно, время уже занято.", show_alert=True)
+        await callback.answer("Error! The time may already be taken.", show_alert=True)
 
 
 @user_router.callback_query(F.data.startswith('del_'))
@@ -225,7 +225,7 @@ async def handle_delete(callback: CallbackQuery):
         if callback.from_user.id == ADMIN_ID:
             # СЦЕНАРИЙ А: Кнопку нажал АДМИН
             if client_chat_id: # Если клиент из Телеграма, а не с улицы/сайта
-                client_text = f"😔 <b>Ваша запись отменена!</b>\nК сожалению, запись к мастеру {master_name} на {app_date} в {app_time} была отменена."
+                client_text = f"😔 <b>Your appointment has been cancelled!</b>\nUnfortunately, your appointment with {master_name} on {app_date} at {app_time} has been cancelled."
                 try:
                     # Отправляем сообщение КЛИЕНТУ
                     await callback.bot.send_message(chat_id=client_chat_id, text=client_text, parse_mode="HTML")
@@ -234,7 +234,7 @@ async def handle_delete(callback: CallbackQuery):
         else:
             # СЦЕНАРИЙ Б: Кнопку нажал КЛИЕНТ (твой старый код)
             user_identifier = f"@{callback.from_user.username}" if callback.from_user.username else callback.from_user.full_name
-            admin_text = f"❌ <b>ОТМЕНА ЗАПИСИ (КЛИЕНТ)!</b>\n👤 {user_identifier}\n✂️ Мастер: {master_name}\n📅 {app_date} в {app_time}"
+            admin_text = f"❌ <b>CANCEL APPOINTMENT (CLIENT)!</b>\n👤 {user_identifier}\n✂️ Master: {master_name}\n📅 {app_date} at {app_time}"
             try:
                 # Отправляем сообщение АДМИНУ
                 await callback.bot.send_message(chat_id=ADMIN_ID, text=admin_text, parse_mode="HTML")
@@ -243,7 +243,7 @@ async def handle_delete(callback: CallbackQuery):
 
     # Эти две строчки выполнятся в любом случае
     await callback.message.delete()
-    await callback.answer("Запись успешно отменена", show_alert=True)
+    await callback.answer("The appointment has been successfully cancelled.", show_alert=True)
 
 
 @user_router.callback_query(F.data == "back_to_masters")
@@ -254,7 +254,7 @@ async def back_to_masters(callback: CallbackQuery):
     await callback.message.delete()
 
     # 2. Отправляем НОВОЕ текстовое сообщение с кнопками
-    await callback.message.answer("Выберите мастера:", reply_markup=create_masters_keyboard(masters))
+    await callback.message.answer("Choose a master:", reply_markup=create_masters_keyboard(masters))
 
     # 3. Гасим часики
     await callback.answer()
@@ -266,13 +266,13 @@ async def book_master(callback: CallbackQuery):
     services = await appointment_service.get_services()
 
     await callback.message.delete()
-    await callback.message.answer(text=f"Выберите услугу:", reply_markup=create_services_keyboard(services, master_id))
+    await callback.message.answer(text=f"Select a service:", reply_markup=create_services_keyboard(services, master_id))
     await callback.answer()
 
 @user_router.callback_query(F.data == "change_phone")
 async def change_phone(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.answer("📱 Пожалуйста, отправьте ваш новый номер телефона в ответ на это сообщение:")
+    await callback.message.answer("📱 Please reply to this message with your new phone number.:")
 
     await state.set_state(ProfileStates.waiting_for_new_phone)
 
@@ -283,7 +283,7 @@ async def change_phone(callback: CallbackQuery, state: FSMContext):
 async def save_new_phone(message: types.Message, state: FSMContext):
     new_phone = message.text
     await appointment_service.save_user_phone(message.chat.id, new_phone)
-    await message.answer(f"✅ Супер! Ваш новый номер <b>{new_phone}</b> успешно сохранен.", parse_mode="HTML")
+    await message.answer(f"✅ Great! Your new number <b>{new_phone}</b> has been saved successfully.", parse_mode="HTML")
 
     # 🔥 ЧИТАЕМ ПАМЯТЬ БОТА ПЕРЕД ОЧИСТКОЙ:
     data = await state.get_data()
@@ -292,28 +292,28 @@ async def save_new_phone(message: types.Message, state: FSMContext):
 
     # ПРОВЕРЯЕМ ЗАПИСКУ:
     if data.get("is_registration"):
-        await message.answer("✂️ Добро пожаловать! Выберите действие:",
+        await message.answer("✂️ Welcome! Select an action:",
                              reply_markup=create_main_keyboard(message.from_user.id))
     else:
-        await message.answer("Возвращаем вас в меню:", reply_markup=create_main_keyboard(message.from_user.id))
+        await message.answer("We return you to the menu:", reply_markup=create_main_keyboard(message.from_user.id))
 
 @user_router.message(F.text == "🎁 Сертификаты")
 async def show_certificates(message: types.Message):
     await message.answer(
-        text="Это сертификаты на покупку разных услуг и косметики в нашем барбершопе 💈",
+        text="These are certificates for the purchase of various services and cosmetics in our barbershop. 💈",
         reply_markup=create_cert_keyboard()
     )
 
 @user_router.callback_query(F.data == "buy_cert_500")
 async def send_invoice(callback: CallbackQuery):
     if not PAYMENT_TOKEN:
-        await callback.message.answer("Ошибка: Токен оплаты не найден.")
+        await callback.message.answer("Error: Payment token not found.")
         return
     promo_code = f"BARBER-{random.randint(100000, 999999)}"
-    prices = [LabeledPrice(label="Предоплата", amount=50000)]
+    prices = [LabeledPrice(label="Prepayment", amount=50000)]
     await callback.message.answer_invoice(
-        title="Подарочный сертификат",
-        description="Оплата услугу",
+        title="Gift certificate",
+        description="Payment for the service",
         payload=promo_code,
         provider_token=PAYMENT_TOKEN,
         currency="UAH",
@@ -337,10 +337,10 @@ async def successful_payment_handler(message: types.Message):
     if not created:
         return
     text = (
-        f"🎉 <b>Оплата успешно получена!</b>\n"
-        f"Вы купили сертификат на {amount} {payment_info.currency}.\n\n"
-        f"🎁 Ваш уникальный код: <code>{promo_code}</code>\n"
-        f"Покажите его администратору при визите!"
+        f"🎉 <b>Payment successfully received!</b>\n"
+        f"You purchased a certificate for {amount} {payment_info.currency}.\n\n"
+        f"🎁 Your unique code: <code>{promo_code}</code>\n"
+        f"Show it to the administrator upon your visit!"
     )
 
     await message.answer(text, parse_mode="HTML")
@@ -351,14 +351,14 @@ async def my_cert(message: types.Message):
     cert = await get_user_certificates(user_id)
 
     answer_text = (
-        f"<b>🎟 Ваши активные сертификаты:</b>\n\n"
+        f"<b>🎟 Your active certificates:</b>\n\n"
     )
     if cert:
         for c in cert:
-            answer_text += f"🎁 Код: <code>{c.promo}</code> — {c.amount} UAH\n"
+            answer_text += f"🎁 Code: <code>{c.promo}</code> — {c.amount} UAH\n"
         await message.answer(answer_text, parse_mode="HTML")
     else:
-        await message.answer(f"У вас пока нет активных сертификатов")
+        await message.answer(f"You don't have any active certificates yet.")
 
 
 
