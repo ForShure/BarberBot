@@ -65,7 +65,7 @@ async def handle_contact(message: types.Message):
     await appointment_service.save_user_phone(message.chat.id, message.contact.phone_number)
     await message.answer("✅ The number has been saved.!", reply_markup=create_main_keyboard(message.from_user.id))
 
-@user_router.message(F.text == "Мастера")
+@user_router.message(F.text == "Master")
 async def show_masters(message: types.Message):
     masters = await master_service.get_all_masters()
     await message.answer("Our masters:", reply_markup=create_masters_keyboard(masters))
@@ -297,7 +297,7 @@ async def save_new_phone(message: types.Message, state: FSMContext):
     else:
         await message.answer("We return you to the menu:", reply_markup=create_main_keyboard(message.from_user.id))
 
-@user_router.message(F.text == "🎁 Сертификаты")
+@user_router.message(F.text == "🎁 Certificates")
 async def show_certificates(message: types.Message):
     await message.answer(
         text="These are certificates for the purchase of various services and cosmetics in our barbershop. 💈",

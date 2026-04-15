@@ -53,6 +53,6 @@ async def admin_tomorrow(message: types.Message):
     tomorrow = datetime.now(TIMEZONE).date() + timedelta(days=1)
     await show_appointments_for_date(message, tomorrow, message.from_user.id)
 
-@master_router.message(F.text.contains("Exit"))
+@master_router.message(F.text.contains("🔙 Logout"))
 async def admin_exit(message: types.Message):
     await message.answer("Master mode is disabled.", reply_markup=create_main_keyboard(message.from_user.id))

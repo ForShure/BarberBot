@@ -68,7 +68,7 @@ async def admin_schedule(message: types.Message):
     masters = await master_service.get_all_masters()
     await message.answer("Choose a master:", reply_markup=create_admin_master_keyboard(masters))
 
-@admin_router.message(F.text.contains("Exit"))
+@admin_router.message(F.text.contains("🔙 Logout"))
 async def admin_exit(message: types.Message):
     await message.answer("Admin mode is disabled.", reply_markup=create_main_keyboard(message.from_user.id))
 

@@ -48,7 +48,7 @@ def create_services_keyboard(services, master_id):
 
     for service in services:
         builder.button(
-            text=f"{service.name} ({service.price}₽)",
+            text=f"{service.name} ({service.price}UAH)",
             callback_data=f"service_{service.id}_{master_id}"
         )
 
