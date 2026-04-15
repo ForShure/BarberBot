@@ -355,7 +355,7 @@ async def my_cert(message: types.Message):
     )
     if cert:
         for c in cert:
-            answer_text += f"🎁 Код: <code>{c.promo}</code> — {c.sum} UAH\n"
+            answer_text += f"🎁 Код: <code>{c.promo}</code> — {c.amount} UAH\n"
         await message.answer(answer_text, parse_mode="HTML")
     else:
         await message.answer(f"У вас пока нет активных сертификатов")
