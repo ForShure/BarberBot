@@ -116,7 +116,7 @@ async def handle_web_app_data(message: Message):
     await message.answer(text, parse_mode="HTML")
 
 
-@user_router.message(F.text == "Мои записи")
+@user_router.message(F.text == "My appointments")
 async def show_notes(message: types.Message):
     appointments = await appointment_service.get_user_appointments(message.from_user.id)
     if not appointments:
