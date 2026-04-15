@@ -21,14 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     tg.ready();
     tg.expand();
 
-    const debugDiv = document.createElement('div');
-    debugDiv.style.cssText = "background: yellow; color: black; padding: 10px; font-weight: bold; font-size: 14px; word-wrap: break-word;";
-
-    debugDiv.innerHTML = "ТГ: " + JSON.stringify(tg.initDataUnsafe) + "<br><br>URL: " + window.location.href;
-    document.body.prepend(debugDiv);
-
-    console.log("TG:", tg.initDataUnsafe);
-
     function getTelegramUserId() {
         // 1. Сначала ищем ID в нашей ссылке (100% надежно)
         const urlParams = new URLSearchParams(window.location.search);
@@ -231,25 +223,28 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(res => {
             if (res.status === 201) {
-
-                if (tgUserId) {
-                    tg.showAlert("✅ Запись создана!", () => tg.close());
+                // ИСПРАВЛЕНО: проверяем finalUserId вместо несуществующего tgUserId
+                if (finalUserId) {
+                    // Показываем красивое окно ТГ и закрываем WebApp после нажатия "ОК"
+                    tg.showAlert("✅ Запись успешно создана!", function() {
+                        tg.close();
+                    });
                 } else {
-                    alert("Запись создана (без Telegram)");
+                    alert("Запись создана!");
                     location.reload();
                 }
-
             } else {
-                tg.showAlert("Ошибка записи");
+                tg.showAlert("Произошла ошибка при записи.");
                 btnSubmit.disabled = false;
-                btnSubmit.innerText = "Подтвердить";
+                btnSubmit.innerText = "Подтвердить запись";
             }
         })
         .catch(err => {
             console.error(err);
-            alert("Ошибка сети");
+            // Если реально пропал интернет
+            tg.showAlert("Ошибка соединения с сервером.");
             btnSubmit.disabled = false;
-            btnSubmit.innerText = "Подтвердить";
+            btnSubmit.innerText = "Подтвердить запись";
         });
 
     });
