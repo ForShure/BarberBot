@@ -53,17 +53,17 @@ async def show_appointments_for_date(message: types.Message, target_date):
         )
         await message.answer(text, parse_mode="HTML", reply_markup=create_delete_keyboard(app.id))
 
-@admin_router.message(F.text == "📅 Today's entries")
+@admin_router.message(F.text == "📅 Today's appointments")
 async def admin_today(message: types.Message):
     today = datetime.now(TIMEZONE).date()
     await show_appointments_for_date(message, today)
 
-@admin_router.message(F.text == "📅 Entries for tomorrow")
+@admin_router.message(F.text == "📅 Tomorrow's appointments")
 async def admin_tomorrow(message: types.Message):
     tomorrow = datetime.now(TIMEZONE).date() + timedelta(days=1)
     await show_appointments_for_date(message, tomorrow)
 
-@admin_router.message(F.text == "📅 Master's schedule")
+@admin_router.message(F.text == "📅 Schedule")
 async def admin_schedule(message: types.Message):
     masters = await master_service.get_all_masters()
     await message.answer("Choose a master:", reply_markup=create_admin_master_keyboard(masters))
