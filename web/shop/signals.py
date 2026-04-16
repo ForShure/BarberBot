@@ -79,9 +79,9 @@ def send_telegram_notification(sender, instance, created, **kwargs):
     send_to_google_from_django(instance)
 
     message_admin = (
-        f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
-        f"👤 {instance.client_name or 'Не указано'}\n"
-        f"📞 {instance.phone or 'Не указан'}\n"
+        f"🚀 <b>NEW POST!</b>\n"
+        f"👤 {instance.client_name or 'Not specified'}\n"
+        f"📞 {instance.phone or 'Not specified'}\n"
         f"✂️ {master_name} | {service_name}\n"
         f"📅 {instance.date} {instance.time}"
     )
@@ -112,13 +112,13 @@ def send_telegram_notification(sender, instance, created, **kwargs):
 
     if instance.master and instance.master.telegram_id:
         text_for_master = (
-            f"🚀 <b>НОВАЯ ЗАПИСЬ!</b>\n"
-            f"👤 Клиент: {instance.client_name or 'С сайта'}\n"
-            f"📞 Телефон: <code>{instance.phone or 'Не указан'}</code>\n"
+            f"🚀 <b>NEW POST!</b>\n"
+            f"👤 Client: {instance.client_name or 'From the website'}\n"
+            f"📞 Telephone: <code>{instance.phone or 'Not specified'}</code>\n"
             # Используем безопасные current_date и current_time
-            f"📅 Дата: {current_date.strftime('%d.%m.%Y')}\n"
-            f"⏰ Время: {current_time.strftime('%H:%M')}\n"
-            f"💸 Услуга: {service_name}"
+            f"📅 Date: {current_date.strftime('%d.%m.%Y')}\n"
+            f"⏰ Time: {current_time.strftime('%H:%M')}\n"
+            f"💸 Service: {service_name}"
         )
         payload_master = {
             "chat_id": instance.master.telegram_id,
