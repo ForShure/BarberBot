@@ -129,7 +129,7 @@ async def show_notes(message: types.Message):
         await message.answer(text, reply_markup=create_delete_keyboard(app.id))
 
 
-@user_router.message(F.text == "Профиль")
+@user_router.message(F.text == "Profile")
 async def show_profile(message: types.Message):
     user = await appointment_service.get_user_by_chat_id(message.chat.id)
     if user:

@@ -20,7 +20,11 @@ env_hosts = os.environ.get('ALLOWED_HOSTS', '178.104.67.231,barberbot-zp.duckdns
 # Разбиваем строку по запятой, превращая в список
 ALLOWED_HOSTS = [host.strip() for host in env_hosts.split(',')]
 
-CSRF_TRUSTED_ORIGINS = ['https://barberbot-zp.duckdns.org']
+CSRF_TRUSTED_ORIGINS = [
+    'https://barberbot-zp.duckdns.org',
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 INSTALLED_APPS = [

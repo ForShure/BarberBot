@@ -99,7 +99,7 @@ def send_telegram_notification(sender, instance, created, **kwargs):
 
     try:
         if instance.user and instance.user.chat_id:
-            message = f"{instance.client_name}, вы успешно записаны к мастеру {master_name} на {current_date} в {current_time}!"
+            message = f"{instance.client_name}, you have successfully registered with a specialist. {master_name} на {current_date} в {current_time}!"
             data = {"chat_id": instance.user.chat_id, "text": message, "parse_mode": "HTML"}
 
             response_client = requests.post(url, data=data, timeout=5)
